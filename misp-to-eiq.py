@@ -8,10 +8,10 @@ import os, sys, json, re, optparse, requests, urllib3, datetime, eiqjson, eiqcal
 from config import settings
 
 def eiqIngest(eiqJSON):
-    if not settings.SSLVERIFY:
+    if not settings.EIQSSLVERIFY:
         if options.verbose:
             print("W) You have disabled SSL verification for EIQ, this is not recommended.")
-    eiqAPI=eiqcalls.EIQApi(insecure=not(settings.SSLVERIFY))
+    eiqAPI=eiqcalls.EIQApi(insecure=not(settings.EIQSSLVERIFY))
     eiqAPI.set_host(settings.EIQURL+'/api')
     eiqAPI.set_credentials(settings.EIQUSER,settings.EIQPASS)
     try:
@@ -116,11 +116,11 @@ def download(eventID):
             "Content-type":"application/json",
             "Authorization":settings.MISPTOKEN
         }
-        if not settings.SSLVERIFY:
+        if not settings.MISPSSLVERIFY:
             if options.verbose:
                 print("W) You have disabled SSL verification for MISP, this is not recommended.")
             urllib3.disable_warnings()
-        response=requests.get(eventurl,headers=apiheaders,verify=settings.SSLVERIFY)
+        response=requests.get(eventurl,headers=apiheaders,verify=settings.MISPSSLVERIFY)
         mispdict=response.json()
         return mispdict
     except:
