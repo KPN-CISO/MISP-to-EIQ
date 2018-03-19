@@ -32,4 +32,4 @@ TITLETAG='[MyCERT MISP]'
 - [Optional] Change the SSLVERIFY variable to False if you do not want to verify SSL certificates (e.g. when using self-signed
 certificates). Do not disable this unless you are certain and understand the risks.
 
-SSLVERIFY=False  
+SSLVERIFY=True  
