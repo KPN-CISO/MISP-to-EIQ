@@ -31,6 +31,7 @@ Options:
   
 # Copyright
 
-# (c) 2018 Arnim Eijkhoudt <arnime _squigglything_ kpn-cert.nl> and Sebastiaan Groot
-# <sebastiaang _monkeytail_ kpn-cert.nl> (for his great EIQ lib / submodule)
-# This software is GPLv3 licensed, except where otherwise indicated
+(c) 2018 Arnim Eijkhoudt <arnime _squigglything_ kpn-cert.nl> and Sebastiaan Groot
+<sebastiaang _monkeytail_ kpn-cert.nl> (for his great EIQ lib / submodule)
+  
+This software is GPLv3 licensed, except where otherwise indicated.
