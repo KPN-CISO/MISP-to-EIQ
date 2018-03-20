@@ -181,7 +181,7 @@ class EIQEntity:
       raise Exception('You need to set an entity first using set_entity(...)')
     if not indicator_type in self.INDICATOR_TYPES:
       raise Exception('%s is not a member of INDICATOR_TYPES' % (indicator_type,))
-    if not 'types' in self.__doc.keys():
+    if not 'types' in self.__doc['data'].keys():
       self.__doc['data']['types'] = []
     self.__doc['data']['types'].append({'value': indicator_type})
 

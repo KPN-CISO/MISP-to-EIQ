@@ -27,7 +27,7 @@ def eiqIngest(eiqJSON):
         else:
             print('unable to get a response from host')
 
-def transform(eventDict,eventID):
+def transform(eventDict,eventID,options):
     if options.verbose:
         print("U) Converting Event into EIQ JSON ...")
     try:
@@ -54,7 +54,8 @@ def transform(eventDict,eventID):
             if not tlp:
                 tlp='amber'
             sighting.set_entity_tlp(tlp)
-            sighting.set_entity_impact('Unknown')
+            sighting.set_entity_impact(options.impact)
+            sighting.set_entity_confidence(options.confidence)
             for attribute in mispevent['Attribute']:
                 category=attribute['category'].lower()
                 type=attribute['type'].lower()
@@ -153,6 +154,8 @@ def download(eventID):
 if __name__ == "__main__":
     cli=optparse.OptionParser(usage="usage: %prog [-q] <MISP Event ID>")
     cli.add_option('-v','--verbose',dest='verbose',action='store_true',default=False,help='[optional] Enable progress/error info (default: disabled)')
+    cli.add_option('-c','--confidence',dest='confidence',default='Unknown',help='[optional] Set the confidence level for the EclecticIQ entity (default: \'Unknown\')')
+    cli.add_option('-i','--impact',dest='impact',default='Unknown',help='[optional] Set the impact level for the EclecticIQ entity (default: \'Unknown\')')
     (options,args)=cli.parse_args()
     if len(args)<1:
         cli.print_help()
@@ -164,7 +167,8 @@ if __name__ == "__main__":
     else:
         eventID=args[0]
         eventDict=download(eventID)
-        eiqJSON=transform(eventDict,eventID)
+        eiqJSON=transform(eventDict,eventID,options)
         if eiqJSON:
-            print(eiqJSON)
+            if options.verbose:
+                print(eiqJSON)
             eiqIngest(eiqJSON)
