@@ -23,7 +23,7 @@ For configuration options, refer to the README.md in the config/ directory.
 
 Running ./misp-to-eiq.py without command-line options will display help:
 
-Usage: misp-to-eiq.py [-q] <MISP Event ID>  
+Usage: misp-to-eiq.py [-v] <MISP Event ID>  
   
 Options:  
   -h, --help     show this help message and exit  
