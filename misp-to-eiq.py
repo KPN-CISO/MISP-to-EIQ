@@ -54,6 +54,7 @@ def transform(eventDict,eventID):
             if not tlp:
                 tlp='amber'
             sighting.set_entity_tlp(tlp)
+            sighting.set_entity_impact('Unknown')
             for attribute in mispevent['Attribute']:
                 category=attribute['category'].lower()
                 type=attribute['type'].lower()
@@ -63,44 +64,64 @@ def transform(eventDict,eventID):
                         filename=type[:9]
                         type=type[10:]
                         sighting.add_observable(sighting.OBSERVABLE_FILE,filename)
+                        sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='md5':
                         sighting.add_observable(sighting.OBSERVABLE_MD5,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha1':
                         sighting.add_observable(sighting.OBSERVABLE_SHA1,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha256':
                         sighting.add_observable(sighting.OBSERVABLE_SHA256,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha512':
                         sighting.add_observable(sighting.OBSERVABLE_SHA512,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='email-subject':
                         sighting.add_observable(sighting.OBSERVABLE_EMAIL_SUBJECT,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_MALICIOUS_EMAIL)
                     if type=='email-body':
                         sighting.add_observable(sighting.OBSERVABLE_EMAIL,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_MALICIOUS_EMAIL)
                     if type=='filename':
                         sighting.add_observable(sighting.OBSERVABLE_FILE,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
                 if category=='external analysis':
                     if type.startswith('filename|'):
                         filename=type[:9]
                         type=type[10:]
                         sighting.add_observable(sighting.OBSERVABLE_FILE,filename)
+                        sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='link':
                         sighting.add_observable(sighting.OBSERVABLE_URI,value)
+                        sighting.add_indicator_type(sighting.OBSERVABLE_URI)
                     if type=='md5':
                         sighting.add_observable(sighting.OBSERVABLE_MD5,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha1':
                         sighting.add_observable(sighting.OBSERVABLE_SHA1,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha256':
                         sighting.add_observable(sighting.OBSERVABLE_SHA256,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha512':
                         sighting.add_observable(sighting.OBSERVABLE_SHA512,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='filename':
                         sighting.add_observable(sighting.OBSERVABLE_FILE,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
                 if category=='network activity':
                     if type=='domain' or type=='hostname':
                         sighting.add_observable(sighting.OBSERVABLE_DOMAIN,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_DOMAIN_WATCHLIST)
+                        sighting.add_indicator_type(sighting.INDICATOR_C2)
                     if type=='ip-dst':
                         sighting.add_observable(sighting.OBSERVABLE_IPV4,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_IP_WATCHLIST)
+                        sighting.add_indicator_type(sighting.INDICATOR_C2)
                     if type=='url':
                         sighting.add_observable(sighting.OBSERVABLE_URI,value)
+                        sighting.add_indicator_type(sighting.INDICATOR_URL_WATCHLIST)
             return sighting.get_as_json()
     except:
         raise

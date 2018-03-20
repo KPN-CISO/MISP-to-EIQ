@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import json, time, uuid
+import json, time, uuid, sys
 
 """EIQJson
 A simple EIQ json generator
@@ -63,11 +63,42 @@ class EIQEntity:
     OBSERVABLE_EMAIL
   ]
 
+  INDICATOR_MALICIOUS_EMAIL = 'Malicious E-mail'
+  INDICATOR_IP_WATCHLIST = 'IP Watchlist'
+  INDICATOR_FILE_HASH_WATCHLIST = 'File Hash Watchlist'
+  INDICATOR_DOMAIN_WATCHLIST = 'Domain Watchlist'
+  INDICATOR_URL_WATCHLIST = 'URL Watchlist'
+  INDICATOR_MALWARE_ARTIFACTS = 'Malware Artifacts'
+  INDICATOR_C2 = 'C2'
+  INDICATOR_ANONYMIZATION = 'Anonymization'
+  INDICATOR_EXFILTRATION = 'Exfiltration'
+  INDICATOR_HOST_CHARACTERISTICS = 'Host Characteristics'
+  INDICATOR_COMPROMISED_PKI_CERTIFICATE = 'Compromised PKI Certificate'
+  INDICATOR_LOGIN_NAME = 'Login Name'
+  INDICATOR_IMEI_WATCHLIST = 'IMEI Watchlist'
+  INDICATOR_IMSI_WATCHLIST = 'IMSI Watchlist'
+  INDICATOR_TYPES = [
+    INDICATOR_MALICIOUS_EMAIL,
+    INDICATOR_IP_WATCHLIST,
+    INDICATOR_FILE_HASH_WATCHLIST,
+    INDICATOR_DOMAIN_WATCHLIST,
+    INDICATOR_URL_WATCHLIST,
+    INDICATOR_MALWARE_ARTIFACTS,
+    INDICATOR_C2,
+    INDICATOR_ANONYMIZATION,
+    INDICATOR_EXFILTRATION,
+    INDICATOR_HOST_CHARACTERISTICS,
+    INDICATOR_COMPROMISED_PKI_CERTIFICATE,
+    INDICATOR_LOGIN_NAME,
+    INDICATOR_IMEI_WATCHLIST,
+    INDICATOR_IMSI_WATCHLIST
+  ]
+
   def __init__(self):
     self.__is_entity_set = False
     self.__doc = {}
 
-  def set_entity(self, entity_type, entity_title = '', entity_description = '', observed_time = '', source = ''):
+  def set_entity(self, entity_type, entity_title = '', entity_description = '', observed_time = '', source = '', tlp = 'RED', confidence = 'Unknown', impact = 'Unknown'):
     if not entity_type in self.ENTITY_TYPES:
       raise Exception('Expecting entity_type from ENTITY_TYPES')
 
@@ -80,7 +111,6 @@ class EIQEntity:
     entity['data']['description'] = entity_description
 
     entity['meta'] = {}
-    entity['meta']['tlp_color'] = 'RED'
     entity['meta']['tags'] = []
     entity['meta']['estimated_observed_time'] = observed_time
     entity['meta']['half_life'] = 182 # EIQ default of half a year
@@ -89,8 +119,11 @@ class EIQEntity:
     entity['platform-version'] = "2.0.1"
     entity['content-type'] = "urn:eclecticiq.com:json:1.0"
 
-
     self.__doc['data'] = entity
+
+    self.set_entity_confidence(confidence)
+    self.set_entity_impact(impact)
+    self.set_entity_tlp(tlp)
 
   def set_entity_source(self, source):
     if not self.__is_entity_set:
@@ -117,10 +150,40 @@ class EIQEntity:
       raise Exception('You need to set an entity first using set_entity(...)')
     self.__doc['data']['meta']['source_reliability'] = reliability
 
+  def set_entity_confidence(self, confidence = 'Unknown'):
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    self.__doc['data']['confidence'] = {}
+    self.__doc['data']['confidence']['type'] = 'confidence'
+    self.__doc['data']['confidence']['value'] = confidence
+
+  def set_entity_impact(self, impact = 'Unknown'):
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    self.__doc['data']['likely_impact'] = {}
+    self.__doc['data']['likely_impact']['type'] = 'statement'
+    self.__doc['data']['likely_impact']['value_vocab'] = '{http://stix.mitre.org/default_vocabularies-1}HighMediumLowVocab-1.0'
+    self.__doc['data']['likely_impact']['value'] = impact
+
   def set_entity_tlp(self, tlp):
     if not self.__is_entity_set:
       raise Exception('You need to set an entity first using set_entity(...)')
     self.__doc['data']['meta']['tlp_color'] = tlp.upper()
+    self.__doc['data']['handling'] = [{}]
+    self.__doc['data']['handling'][0]['type'] = 'marking-specification'
+    self.__doc['data']['handling'][0]['marking_structures'] = [{}]
+    self.__doc['data']['handling'][0]['marking_structures'][0]['marking_structure_type'] = 'tlp'
+    self.__doc['data']['handling'][0]['marking_structures'][0]['color'] = tlp.upper()
+    self.__doc['data']['handling'][0]['marking_structures'][0]['type'] = 'marking_structure'
+
+  def add_indicator_type(self, indicator_type):
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    if not indicator_type in self.INDICATOR_TYPES:
+      raise Exception('%s is not a member of INDICATOR_TYPES' % (indicator_type,))
+    if not 'types' in self.__doc.keys():
+      self.__doc['data']['types'] = []
+    self.__doc['data']['types'].append({'value': indicator_type})
 
   def add_observable(self, observable_type, value):
 #    if not observable_type in self.OBSERVABLE_TYPES:
@@ -141,9 +204,17 @@ class EIQEntity:
     self.__doc['data']['meta']['bundled_extracts'].append(observable)
 
   def get_as_dict(self):
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    if self.__doc['data']['data']['type'] == self.ENTITY_INDICATOR and not 'types' in self.__doc['data'].keys():
+      sys.stderr.write('[!] no indicator type was set using add_indicator_type(indicator_type)\n')
     return self.__doc
 
   def get_as_json(self):
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    if self.__doc['data']['data']['type'] == self.ENTITY_INDICATOR and not 'types' in self.__doc['data'].keys():
+      sys.stderr.write('[!] no indicator type was set using add_indicator_type(indicator_type)\n')
     return json.dumps(self.__doc)
 
 class EIQRelation:
