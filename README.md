@@ -2,7 +2,7 @@
 
 MISP-to-EIQ is a simple Python script that will connect to your MISP instance,
 download the given MISP Event ID and send it to an EclecticIQ instance as a
-valid EclecticIQ JSON entity of the STIX 'Indicator' type.
+valid EclecticIQ JSON entity of the given type.
 
 For configuration options, refer to the README.md in the config/ directory.
 
