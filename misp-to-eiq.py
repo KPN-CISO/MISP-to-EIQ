@@ -34,7 +34,10 @@ def transform(eventDict,eventID,options):
         if 'Event' in eventDict:
             mispevent=eventDict['Event']
             sighting=eiqjson.EIQEntity()
-            sighting.set_entity(sighting.ENTITY_INDICATOR)
+            if options.type=='i':
+                sighting.set_entity(sighting.ENTITY_INDICATOR)
+            if options.type=='s':
+                sighting.set_entity(sighting.ENTITY_SIGHTING)
             sighting.set_entity_source(settings.EIQSOURCE)
             if not 'info' in mispevent:
                 print("E) MISP Entity ID has no title, which can lead to problems ingesting, processing and finding data in EIQ.")
@@ -65,65 +68,89 @@ def transform(eventDict,eventID,options):
                         filename=type[:9]
                         type=type[10:]
                         sighting.add_observable(sighting.OBSERVABLE_FILE,filename)
-                        sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='md5':
                         sighting.add_observable(sighting.OBSERVABLE_MD5,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha1':
                         sighting.add_observable(sighting.OBSERVABLE_SHA1,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha256':
                         sighting.add_observable(sighting.OBSERVABLE_SHA256,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha512':
                         sighting.add_observable(sighting.OBSERVABLE_SHA512,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='email-subject':
                         sighting.add_observable(sighting.OBSERVABLE_EMAIL_SUBJECT,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_MALICIOUS_EMAIL)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_MALICIOUS_EMAIL)
                     if type=='email-body':
                         sighting.add_observable(sighting.OBSERVABLE_EMAIL,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_MALICIOUS_EMAIL)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_MALICIOUS_EMAIL)
                     if type=='filename':
                         sighting.add_observable(sighting.OBSERVABLE_FILE,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
                 if category=='external analysis':
                     if type.startswith('filename|'):
                         filename=type[:9]
                         type=type[10:]
                         sighting.add_observable(sighting.OBSERVABLE_FILE,filename)
-                        sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='link':
                         sighting.add_observable(sighting.OBSERVABLE_URI,value)
-                        sighting.add_indicator_type(sighting.OBSERVABLE_URI)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.OBSERVABLE_URI)
                     if type=='md5':
                         sighting.add_observable(sighting.OBSERVABLE_MD5,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha1':
                         sighting.add_observable(sighting.OBSERVABLE_SHA1,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha256':
                         sighting.add_observable(sighting.OBSERVABLE_SHA256,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha512':
                         sighting.add_observable(sighting.OBSERVABLE_SHA512,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='filename':
                         sighting.add_observable(sighting.OBSERVABLE_FILE,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
                 if category=='network activity':
                     if type=='domain' or type=='hostname':
                         sighting.add_observable(sighting.OBSERVABLE_DOMAIN,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_DOMAIN_WATCHLIST)
-                        sighting.add_indicator_type(sighting.INDICATOR_C2)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_DOMAIN_WATCHLIST)
+                            sighting.add_indicator_type(sighting.INDICATOR_C2)
                     if type=='ip-dst':
                         sighting.add_observable(sighting.OBSERVABLE_IPV4,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_IP_WATCHLIST)
-                        sighting.add_indicator_type(sighting.INDICATOR_C2)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_IP_WATCHLIST)
+                            sighting.add_indicator_type(sighting.INDICATOR_C2)
                     if type=='url':
                         sighting.add_observable(sighting.OBSERVABLE_URI,value)
-                        sighting.add_indicator_type(sighting.INDICATOR_URL_WATCHLIST)
+                        if options.type=='i':
+                            sighting.add_indicator_type(sighting.INDICATOR_URL_WATCHLIST)
             return sighting.get_as_json()
+        else:
+            if not options.verbose:
+                print("E) An empty result or other error was returned by MISP. Enable verbosity to see the JSON result that was returned.")
+            else:
+                print("E) An empty JSON result or other error was returned by MISP:")
+                print(eventDict)
     except:
         raise
         sys.exit(1)
@@ -132,7 +159,7 @@ def download(eventID):
     if options.verbose:
         print("U) Parsing MISP Event ID "+str(eventID)+" ...")
     try:
-        eventurl=settings.MISPURL+"/events/"+eventID
+        eventurl=settings.MISPURL+"/events/"+str(eventID)
         apiheaders={
             "Accept":"application/json",
             "Content-type":"application/json",
@@ -156,16 +183,20 @@ if __name__ == "__main__":
     cli.add_option('-v','--verbose',dest='verbose',action='store_true',default=False,help='[optional] Enable progress/error info (default: disabled)')
     cli.add_option('-c','--confidence',dest='confidence',default='Unknown',help='[optional] Set the confidence level for the EclecticIQ entity (default: \'Unknown\')')
     cli.add_option('-i','--impact',dest='impact',default='Unknown',help='[optional] Set the impact level for the EclecticIQ entity (default: \'Unknown\')')
+    cli.add_option('-t','--type',dest='type',default='i',help='[optional] Set the type of EclecticIQ entity you wish to create: [i]ndicator (default), [s]ighting. Not all entity types can be created, and not all entity types support all observables/extracts.')
     (options,args)=cli.parse_args()
     if len(args)<1:
         cli.print_help()
         sys.exit(1)
     if len(args)>1:
-        if options.verbose:
-            print("E) One EventID only, please.")
+        print("E) Please specify exactly one EventID only.")
         sys.exit(1)
     else:
-        eventID=args[0]
+        try:
+            eventID=int(args[0])
+        except:
+            print("E) Please specify a numeric EventID only.")
+            sys.exit(1)
         eventDict=download(eventID)
         eiqJSON=transform(eventDict,eventID,options)
         if eiqJSON:

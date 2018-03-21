@@ -174,10 +174,14 @@ class EIQEntity:
   def set_entity_impact(self, impact = 'Unknown'):
     if not self.__is_entity_set:
       raise Exception('You need to set an entity first using set_entity(...)')
-    self.__doc['data']['data']['likely_impact'] = {}
-    self.__doc['data']['data']['likely_impact']['type'] = 'statement'
-    self.__doc['data']['data']['likely_impact']['value_vocab'] = '{http://stix.mitre.org/default_vocabularies-1}HighMediumLowVocab-1.0'
-    self.__doc['data']['data']['likely_impact']['value'] = impact
+    if self.__doc['data']['data']['type'] == self.ENTITY_SIGHTING:
+      impact_key = 'impact'
+    else:
+      impact_key = 'likely_impact'
+    self.__doc['data']['data'][impact_key] = {}
+    self.__doc['data']['data'][impact_key]['type'] = 'statement'
+    self.__doc['data']['data'][impact_key]['value_vocab'] = '{http://stix.mitre.org/default_vocabularies-1}HighMediumLowVocab-1.0'
+    self.__doc['data']['data'][impact_key]['value'] = impact
 
   def set_entity_tlp(self, tlp):
     if not self.__is_entity_set:
@@ -197,6 +201,7 @@ class EIQEntity:
       raise Exception('%s is not a member of INDICATOR_TYPES' % (indicator_type,))
     if not 'types' in self.__doc['data']['data'].keys():
       self.__doc['data']['data']['types'] = []
+    # check duplicates
     if not {'value': indicator_type} in self.__doc['data']['data']['types']:
       self.__doc['data']['data']['types'].append({'value': indicator_type})
 
