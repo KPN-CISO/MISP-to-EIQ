@@ -21,25 +21,25 @@ For configuration options, refer to the README.md in the config/ directory.
 
 # Options
 
-Running ./misp-to-eiq.py without command-line options will display help:
-
-Usage: misp-to-eiq.py [-q] <MISP Event ID>
-
-Options:
-  -h, --help            show this help message and exit
-  -v, --verbose         [optional] Enable progress/error info (default:
-                        disabled)
-  -c CONFIDENCE, --confidence=CONFIDENCE
-                        [optional] Set the confidence level for the EclecticIQ
-                        entity (default: 'Unknown')
-  -i IMPACT, --impact=IMPACT
-                        [optional] Set the impact level for the EclecticIQ
-                        entity (default: 'Unknown')
-  -t TYPE, --type=TYPE  [optional] Set the type of EclecticIQ entity you wish
-                        to create: [i]ndicator (default), [s]ighting. Not all
-                        entity types can be created, and not all entity types
-                        support all observables/extracts.
-
+Running ./misp-to-eiq.py without command-line options will display help:  
+  
+Usage: misp-to-eiq.py [-q] <MISP Event ID>  
+  
+Options:  
+  -h, --help            show this help message and exit  
+  -v, --verbose         [optional] Enable progress/error info (default:  
+                        disabled)  
+  -c CONFIDENCE, --confidence=CONFIDENCE  
+                        [optional] Set the confidence level for the EclecticIQ  
+                        entity (default: 'Unknown')  
+  -i IMPACT, --impact=IMPACT  
+                        [optional] Set the impact level for the EclecticIQ  
+                        entity (default: 'Unknown')  
+  -t TYPE, --type=TYPE  [optional] Set the type of EclecticIQ entity you wish  
+                        to create: [i]ndicator (default), [s]ighting. Not all  
+                        entity types can be created, and not all entity types  
+                        support all observables/extracts.  
+  
 # Copyright
 
 (c) 2018 Arnim Eijkhoudt <arnime _squigglything_ kpn-cert.nl> and Sebastiaan Groot
