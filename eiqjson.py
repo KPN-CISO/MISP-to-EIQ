@@ -22,10 +22,13 @@ class EIQEntity:
   ENTITY_INDICATOR = 'indicator'
   ENTITY_SIGHTING = 'eclecticiq-sighting'
   ENTITY_REPORT = 'report'
+  ENTITY_TTP = 'ttp'
+
   ENTITY_TYPES = [
     ENTITY_INDICATOR,
     ENTITY_SIGHTING,
-    ENTITY_REPORT
+    ENTITY_REPORT,
+    ENTITY_TTP
   ]
 
   OBSERVABLE_ACTOR = 'actor-id'
@@ -94,6 +97,58 @@ class EIQEntity:
     INDICATOR_IMSI_WATCHLIST
   ]
 
+  TTP_ADVANTAGE = 'Advantage'
+  TTP_ADVANTAGE_ECONOMIC = 'Advantage - Economic'
+  TTP_ADVANTAGE_MILITARY = 'Advantage - Military'
+  TTP_ADVANTAGE_POLITICAL = 'Advantage - Political'
+  TTP_THEFT = 'Theft'
+  TTP_THEFT_INTELLECTUAL_PROPERTY = 'Theft - Intellectual Property'
+  TTP_THEFT_CREDENTIAL_THEFT = 'Theft - Credential Theft'
+  TTP_THEFT_IDENTITY_THEFT = 'Theft - Identity Theft'
+  TTP_THEFT_THEFT_OF_PROPRIETARY_INFORMATION = 'Theft - Theft of Proprietary Information'
+  TTP_ACCOUNT_TAKEOVER = 'Account Takeover'
+  TTP_BRAND_DAMAGE = 'Brand Damage'
+  TTP_COMPETITIVE_ADVANTAGE = 'Competitve Advantage'
+  TTP_DEGRADATION_OF_SERVICE = 'Degradation of Service'
+  TTP_DENIAL_AND_DECEPTION = 'Denial and Deception'
+  TTP_DESTRUCTION = 'Destruction'
+  TTP_DISRUPTION = 'Disruption'
+  TTP_EMBARRASSMENT = 'Embarrassment'
+  TTP_EXPOSURE = 'Exposure'
+  TTP_EXTORTION = 'Extortion'
+  TTP_FRAUD = 'Fraud'
+  TTP_HARASSMENT = 'Harassment'
+  TTP_ICS_CONTROL = 'ICS Control'
+  TTP_TRAFFIC_DIVERSION = 'Traffic Diversion'
+  TTP_UNAUTHORIZED_ACCESS = 'Unauthorized Access'
+
+  TTP_TYPES = [
+    TTP_ADVANTAGE,
+    TTP_ADVANTAGE_ECONOMIC,
+    TTP_ADVANTAGE_MILITARY,
+    TTP_ADVANTAGE_POLITICAL,
+    TTP_THEFT,
+    TTP_THEFT_INTELLECTUAL_PROPERTY,
+    TTP_THEFT_CREDENTIAL_THEFT,
+    TTP_THEFT_IDENTITY_THEFT,
+    TTP_THEFT_THEFT_OF_PROPRIETARY_INFORMATION,
+    TTP_ACCOUNT_TAKEOVER,
+    TTP_BRAND_DAMAGE,
+    TTP_COMPETITIVE_ADVANTAGE,
+    TTP_DEGRADATION_OF_SERVICE,
+    TTP_DENIAL_AND_DECEPTION,
+    TTP_DESTRUCTION,
+    TTP_DISRUPTION,
+    TTP_EMBARRASSMENT,
+    TTP_EXPOSURE,
+    TTP_EXTORTION,
+    TTP_FRAUD,
+    TTP_HARASSMENT,
+    TTP_ICS_CONTROL,
+    TTP_TRAFFIC_DIVERSION,
+    TTP_UNAUTHORIZED_ACCESS
+  ]
+
   def __init__(self):
     self.__is_entity_set = False
     self.__doc = {}
@@ -134,8 +189,16 @@ class EIQEntity:
     self.__doc['data'] = entity
 
     self.set_entity_confidence(confidence)
-    self.set_entity_impact(impact)
+    
+    if entity_type == self.ENTITY_INDICATOR or entity_type == self.ENTITY_SIGHTING:
+      self.set_entity_impact(impact)
+    
     self.set_entity_tlp(tlp)
+
+  def set_id(self, id_string):
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    self.__doc['data']['id'] = id_string
 
   def set_entity_source(self, source, source_reliability = 'A'):
     if not self.__is_entity_set:
@@ -174,10 +237,13 @@ class EIQEntity:
   def set_entity_impact(self, impact = 'Unknown'):
     if not self.__is_entity_set:
       raise Exception('You need to set an entity first using set_entity(...)')
+    # at least sightings and incidators both have an impact setting, but both address it by a different name (but with an identical structure)
     if self.__doc['data']['data']['type'] == self.ENTITY_SIGHTING:
       impact_key = 'impact'
-    else:
+    elif self.__doc['data']['data']['type'] == self.ENTITY_INDICATOR:
       impact_key = 'likely_impact'
+    else:
+      raise Exception('impact is not defined for this entity type')
     self.__doc['data']['data'][impact_key] = {}
     self.__doc['data']['data'][impact_key]['type'] = 'statement'
     self.__doc['data']['data'][impact_key]['value_vocab'] = '{http://stix.mitre.org/default_vocabularies-1}HighMediumLowVocab-1.0'
@@ -201,9 +267,24 @@ class EIQEntity:
       raise Exception('%s is not a member of INDICATOR_TYPES' % (indicator_type,))
     if not 'types' in self.__doc['data']['data'].keys():
       self.__doc['data']['data']['types'] = []
-    # check duplicates
-    if not {'value': indicator_type} in self.__doc['data']['data']['types']:
+
+    # only add unique values
+    indicator_type_object = { 'value': indicator_type }
+    if not indicator_type_object in self.__doc['data']['data']['types']:
       self.__doc['data']['data']['types'].append({'value': indicator_type})
+
+  def add_ttp_type(self, ttp_type):
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    if not ttp_type in self.TTP_TYPES:
+      raise Exception('%s is not a member of TTP_TYPES' % (ttp_type,))
+    if not 'intended_effects' in self.__doc['data']['data'].keys():
+      self.__doc['data']['data']['intended_effects'] = []
+
+    # only add unique values
+    ttp_type_object = { 'type': 'statement', 'value': ttp_type }
+    if not ttp_type_object in self.__doc['data']['data']['intended_effects']:
+      self.__doc['data']['data']['intended_effects'].append(ttp_type_object)
 
   def add_observable(self, observable_type, value, classification = None):
 #    if not observable_type in self.OBSERVABLE_TYPES:

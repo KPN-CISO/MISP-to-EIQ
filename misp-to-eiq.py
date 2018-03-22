@@ -4,28 +4,32 @@
 ### <sebastiaang _monkeytail_ kpn-cert.nl> (for his EIQ lib)
 ### This software is GPLv3 licensed, except where otherwise indicated
 
-import os, sys, json, re, optparse, requests, urllib3, datetime, eiqjson, eiqcalls
+import os, sys, json, re, optparse, requests, urllib3, datetime, eiqjson, eiqcalls, pprint
 from config import settings
 
-def eiqIngest(eiqJSON):
+def eiqIngest(eiqJSON,options):
     if not settings.EIQSSLVERIFY:
         if options.verbose:
             print("W) You have disabled SSL verification for EIQ, this is not recommended.")
     eiqAPI=eiqcalls.EIQApi(insecure=not(settings.EIQSSLVERIFY))
     eiqAPI.set_host(settings.EIQURL+'/api')
     eiqAPI.set_credentials(settings.EIQUSER,settings.EIQPASS)
-    try:
-        response=eiqAPI.create_entity(eiqJSON)
-    except:
-        raise
-        print("E) An error occurred contacting the EIQ URL at "+settings.EIQURL)
-    if not response or 'errors' in response:
-        if response:
-            for err in response['errors']:
-                print('[error %d] %s' % (err['status'], err['title']))
-                print('\t%s' % (err['detail'],))
-        else:
-            print('unable to get a response from host')
+    if not options.simulate:
+        try:
+            response=eiqAPI.create_entity(eiqJSON)
+        except:
+            raise
+            print("E) An error occurred contacting the EIQ URL at "+settings.EIQURL)
+        if not response or 'errors' in response:
+            if response:
+                for err in response['errors']:
+                    print('[error %d] %s' % (err['status'], err['title']))
+                    print('\t%s' % (err['detail'],))
+            else:
+                print('unable to get a response from host')
+    else:
+        if options.verbose:
+            print("U) Not ingesting anything into EIQ because the -s/--simulate flag was set.")
 
 def transform(eventDict,eventID,options):
     if options.verbose:
@@ -33,21 +37,23 @@ def transform(eventDict,eventID,options):
     try:
         if 'Event' in eventDict:
             mispevent=eventDict['Event']
-            sighting=eiqjson.EIQEntity()
+            entity=eiqjson.EIQEntity()
             if options.type=='i':
-                sighting.set_entity(sighting.ENTITY_INDICATOR)
+                entity.set_entity(entity.ENTITY_INDICATOR)
             if options.type=='s':
-                sighting.set_entity(sighting.ENTITY_SIGHTING)
-            sighting.set_entity_source(settings.EIQSOURCE)
+                entity.set_entity(entity.ENTITY_SIGHTING)
+            if options.type=='t':
+                entity.set_entity(entity.ENTITY_TTP)
+            entity.set_entity_source(settings.EIQSOURCE)
             if not 'info' in mispevent:
                 print("E) MISP Entity ID has no title, which can lead to problems ingesting, processing and finding data in EIQ.")
                 sys.exit(1)
-            sighting.set_entity_title(settings.TITLETAG+" Event "+str(eventID)+" - "+mispevent['info'])
+            entity.set_entity_title(settings.TITLETAG+" Event "+str(eventID)+" - "+mispevent['info'])
             if 'value' in mispevent:
-                sighting.set_entity_description(mispevent['value'])
+                entity.set_entity_description(mispevent['value'])
             if 'timestamp' in mispevent:
                 timestamp=datetime.datetime.utcfromtimestamp(int(mispevent['timestamp'])).strftime("%Y-%m-%dT%H:%M:%SZ")
-            sighting.set_entity_observed_time(timestamp)
+            entity.set_entity_observed_time(timestamp)
             tlp=''
             for tag in mispevent['Tag']:
                 tagid=tag['id'].lower()
@@ -56,9 +62,10 @@ def transform(eventDict,eventID,options):
                     tlp=(tagname[4:])
             if not tlp:
                 tlp='amber'
-            sighting.set_entity_tlp(tlp)
-            sighting.set_entity_impact(options.impact)
-            sighting.set_entity_confidence(options.confidence)
+            entity.set_entity_tlp(tlp)
+            if options.type=='i' or options.type=='s':
+                entity.set_entity_impact(options.impact)
+            entity.set_entity_confidence(options.confidence)
             for attribute in mispevent['Attribute']:
                 category=attribute['category'].lower()
                 type=attribute['type'].lower()
@@ -67,84 +74,123 @@ def transform(eventDict,eventID,options):
                     if type.startswith('filename|'):
                         filename=type[:9]
                         type=type[10:]
-                        sighting.add_observable(sighting.OBSERVABLE_FILE,filename)
+                        entity.add_observable(entity.OBSERVABLE_FILE,filename)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
+                            entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='md5':
-                        sighting.add_observable(sighting.OBSERVABLE_MD5,value)
+                        entity.add_observable(entity.OBSERVABLE_MD5,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha1':
-                        sighting.add_observable(sighting.OBSERVABLE_SHA1,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA1,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha256':
-                        sighting.add_observable(sighting.OBSERVABLE_SHA256,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA256,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha512':
-                        sighting.add_observable(sighting.OBSERVABLE_SHA512,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA512,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='email-subject':
-                        sighting.add_observable(sighting.OBSERVABLE_EMAIL_SUBJECT,value)
+                        entity.add_observable(entity.OBSERVABLE_EMAIL_SUBJECT,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_MALICIOUS_EMAIL)
+                            entity.add_indicator_type(entity.INDICATOR_MALICIOUS_EMAIL)
                     if type=='email-body':
-                        sighting.add_observable(sighting.OBSERVABLE_EMAIL,value)
+                        entity.add_observable(entity.OBSERVABLE_EMAIL,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_MALICIOUS_EMAIL)
+                            entity.add_indicator_type(entity.INDICATOR_MALICIOUS_EMAIL)
                     if type=='filename':
-                        sighting.add_observable(sighting.OBSERVABLE_FILE,value)
+                        entity.add_observable(entity.OBSERVABLE_FILE,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
+                            entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                 if category=='external analysis':
                     if type.startswith('filename|'):
                         filename=type[:9]
                         type=type[10:]
-                        sighting.add_observable(sighting.OBSERVABLE_FILE,filename)
+                        entity.add_observable(entity.OBSERVABLE_FILE,filename)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
+                            entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='link':
-                        sighting.add_observable(sighting.OBSERVABLE_URI,value)
+                        entity.add_observable(entity.OBSERVABLE_URI,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.OBSERVABLE_URI)
+                            entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                     if type=='md5':
-                        sighting.add_observable(sighting.OBSERVABLE_MD5,value)
+                        entity.add_observable(entity.OBSERVABLE_MD5,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha1':
-                        sighting.add_observable(sighting.OBSERVABLE_SHA1,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA1,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha256':
-                        sighting.add_observable(sighting.OBSERVABLE_SHA256,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA256,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha512':
-                        sighting.add_observable(sighting.OBSERVABLE_SHA512,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA512,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_FILE_HASH_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='filename':
-                        sighting.add_observable(sighting.OBSERVABLE_FILE,value)
+                        entity.add_observable(entity.OBSERVABLE_FILE,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_MALWARE_ARTIFACTS)
+                            entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                 if category=='network activity':
                     if type=='domain' or type=='hostname':
-                        sighting.add_observable(sighting.OBSERVABLE_DOMAIN,value)
+                        entity.add_observable(entity.OBSERVABLE_DOMAIN,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_DOMAIN_WATCHLIST)
-                            sighting.add_indicator_type(sighting.INDICATOR_C2)
+                            entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_C2)
                     if type=='ip-dst':
-                        sighting.add_observable(sighting.OBSERVABLE_IPV4,value)
+                        entity.add_observable(entity.OBSERVABLE_IPV4,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_IP_WATCHLIST)
-                            sighting.add_indicator_type(sighting.INDICATOR_C2)
+                            entity.add_indicator_type(entity.INDICATOR_IP_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_C2)
                     if type=='url':
-                        sighting.add_observable(sighting.OBSERVABLE_URI,value)
+                        entity.add_observable(entity.OBSERVABLE_URI,value)
                         if options.type=='i':
-                            sighting.add_indicator_type(sighting.INDICATOR_URL_WATCHLIST)
-            return sighting.get_as_json()
+                            entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                if category=='other':
+                    entity.set_entity_description("<pre>"+value+"</pre>")
+                    analysis=value.lower()
+                    if 'banking' in analysis:
+                        entity.add_ttp_type(entity.TTP_ADVANTAGE)
+                        entity.add_ttp_type(entity.TTP_ADVANTAGE_ECONOMIC)
+                    if 'fraud' in analysis:
+                        entity.add_ttp_type(entity.TTP_FRAUD)
+                    if ('intellectual property' or 'proprietary information') in analysis:
+                        entity.add_ttp_type(entity.TTP_THEFT)
+                        entity.add_ttp_type(entity.TTP_THEFT_INTELLECTUAL_PROPERTY)
+                        entity.add_ttp_type(entity.TTP_THEFT_THEFT_OF_PROPRIETARY_INFORMATION)
+                    if 'brand damage' in analysis:
+                        entity.add_ttp_type(entity.TTP_BRAND_DAMAGE)
+                    if 'political' in analysis:
+                        entity.add_ttp_type(entity.TTP_ADVANTAGE_POLITICAL)
+                    if 'theft' in analysis:
+                        entity.add_ttp_type(entity.TTP_THEFT)
+                        if 'credential theft' in analysis:
+                            entity.add_ttp_type(entity.TTP_THEFT_CREDENTIAL_THEFT)
+                        if 'identity theft' in analysis:
+                            entity.add_ttp_type(entity.TTP_THEFT_IDENTITY_THEFT)
+                    if 'economic' in analysis:
+                        entity.add_ttp_type(entity.TTP_ADVANTAGE)
+                        entity.add_ttp_type(entity.TTP_ADVANTAGE_ECONOMIC)
+                    if 'destruction' in analysis:
+                        entity.add_ttp_type(entity.TTP_DESTRUCTION)
+                    if 'disruption' in analysis:
+                        entity.add_ttp_type(entity.TTP_DISRUPTION)
+                    if 'traffic diversion' in analysis:
+                        entity.add_ttp_type(entity.TTP_TRAFFIC_DIVERSION)
+                    if 'extortion' in analysis:
+                        entity.add_ttp_type(entity.TTP_EXTORTION)
+                    if 'unauthorized access' in analysis:
+                        entity.add_ttp_type(entity.TTP_UNAUTHORIZED_ACCESS)
+                    if 'account takeover' in analysis:
+                        entity.add_ttp_type(entity.TTP_ACCOUNT_TAKEOVER)
+                    if 'harassment' in analysis:
+                        entity.add_ttp_type(entity.TTP_HARASSMENT)
+            return entity.get_as_json()
         else:
             if not options.verbose:
                 print("E) An empty result or other error was returned by MISP. Enable verbosity to see the JSON result that was returned.")
@@ -169,8 +215,13 @@ def download(eventID):
             if options.verbose:
                 print("W) You have disabled SSL verification for MISP, this is not recommended.")
             urllib3.disable_warnings()
+        if options.verbose:
+            print("U) Contacting "+eventurl+" ...")
         response=requests.get(eventurl,headers=apiheaders,verify=settings.MISPSSLVERIFY)
         mispdict=response.json()
+        if options.verbose:
+            print("U) Got a MISP response:")
+            pprint.pprint(mispdict)
         return mispdict
     except:
         if options.verbose:
@@ -183,7 +234,8 @@ if __name__ == "__main__":
     cli.add_option('-v','--verbose',dest='verbose',action='store_true',default=False,help='[optional] Enable progress/error info (default: disabled)')
     cli.add_option('-c','--confidence',dest='confidence',default='Unknown',help='[optional] Set the confidence level for the EclecticIQ entity (default: \'Unknown\')')
     cli.add_option('-i','--impact',dest='impact',default='Unknown',help='[optional] Set the impact level for the EclecticIQ entity (default: \'Unknown\')')
-    cli.add_option('-t','--type',dest='type',default='i',help='[optional] Set the type of EclecticIQ entity you wish to create: [i]ndicator (default), [s]ighting. Not all entity types can be created, and not all entity types support all observables/extracts.')
+    cli.add_option('-t','--type',dest='type',default='i',help='[optional] Set the type of EclecticIQ entity you wish to create: [i]ndicator (default), [s]ighting or [t]TP. Not all entity types support all observables/extracts!')
+    cli.add_option('-s','--simulate',dest='simulate',action='store_true',default=False,help='[optional] Do not actually ingest anything into EIQ, just simulate everything. Mostly useful with the -v/--verbose flag.')
     (options,args)=cli.parse_args()
     if len(args)<1:
         cli.print_help()
@@ -201,5 +253,5 @@ if __name__ == "__main__":
         eiqJSON=transform(eventDict,eventID,options)
         if eiqJSON:
             if options.verbose:
-                print(eiqJSON)
-            eiqIngest(eiqJSON)
+                print(json.dumps(json.loads(eiqJSON),indent=2,sort_keys=True))
+            eiqIngest(eiqJSON,options)
