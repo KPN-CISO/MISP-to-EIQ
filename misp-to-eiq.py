@@ -16,6 +16,7 @@ def eiqIngest(eiqJSON,options):
     eiqAPI.set_credentials(settings.EIQUSER,settings.EIQPASS)
     if not options.simulate:
         try:
+            print("U) Contacting "+EIQURL+'/api'+' ...')
             response=eiqAPI.create_entity(eiqJSON)
         except:
             raise
