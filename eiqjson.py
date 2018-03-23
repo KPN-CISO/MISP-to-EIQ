@@ -330,7 +330,7 @@ class EIQRelation:
     self.__is_relation_set = False
     self.__doc = {}
 
-  def set_relation(self, relation_subtype, source_id = None, source_type = None, target_id = None, target_type = None):
+  def set_relation(self, relation_subtype, source_id = None, source_type = None, target_id = None, target_type = None, ingest_source = None):
     if not relation_subtype in self.RELATION_TYPES:
       raise Exception('Expecting relation_subtype from RELATION_TYPES')
 
@@ -357,6 +357,9 @@ class EIQRelation:
       relation['target'] = target_id
       relation['target_type'] = target_type
 
+    self.__doc['data']['meta'] = {}
+    if ingest_source:
+      self.__doc['data']['meta']['source'] = ingest_source
     self.__doc['data']['data'] = relation
 
   def set_source(self, source_id, source_type):
@@ -374,6 +377,11 @@ class EIQRelation:
       raise Exception('Expecting target_type from EIQEntity.ENTITY_TYPES')
     self.__doc['data']['data']['target'] = target_id
     self.__doc['data']['data']['target_type'] = target_type
+
+  def set_ingest_source(self, source):
+    if not self.__is_relation_set:
+      raise Exception('You need to set a relation subtype first using set_relation(...)')
+    self.__doc['data']['meta']['source'] = source
 
   def get_as_dict(self):
     return self.__doc

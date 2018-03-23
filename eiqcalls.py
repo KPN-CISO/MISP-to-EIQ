@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import json, urllib.request, ssl
+import json, urllib.request, ssl, hashlib
 import eiqjson
 
 class EIQApi:
@@ -86,17 +86,86 @@ class EIQApi:
       return ret
     return None
 
+  def get_entity(self, u, t):
+    return self.__get_entity(u, t)
+
+  def __get_entity(self, uuid_string, token):
+    headers = {}
+    headers['Host'] = 'eiq.ciso.lan'
+    headers['User-Agent'] = 'curl/7.52.1'
+    headers['Authorization'] = 'Bearer %s' % (token['token'],)
+    
+    # make call
+    try:
+      ret = self.do_call('/entities/%s' % (uuid_string,), 'GET', headers=headers)
+    except:
+      return None
+    if ret and not self.is_error(ret):
+      return ret
+    return None
+
+  def __str2uuid(self, s):
+    if isinstance(s, str):
+      s = s.encode()
+    s = hashlib.md5(s).hexdigest()
+    return s[:8] + '-' + s[8:12] + '-' + s[12:16] + '-' + s[16:20] + '-' + s[20:]
+
+  """ __get_latest_version_id(self, update_identifier, token)
+        a deterministic way to figure out which random-seeming internal EIQ id
+        matches "update_identifier"
+
+        returns: ([str] uuid_prev, [str] uuid_this)
+          uuid_prev: uuid of the entity to update (or None if none exist)
+          uuid_this: uuid to use for this entity
+  """
+  def get_latest_version_id(self, u, t):
+    return self.__get_latest_version_id(u, t)
+
+  def __get_latest_version_id(self, update_identifier, token):
+    update_ctr = 0
+    latest_version = None
+
+    if isinstance(update_identifier, str):
+      update_identifier = update_identifier.encode()
+
+    uuid_string = self.__str2uuid(update_identifier + b'%d' % (update_ctr,))
+    while True:
+      ret = self.__get_entity(uuid_string, token)
+      if ret:
+        latest_version = uuid_string
+        update_ctr += 1
+        uuid_string = self.__str2uuid(update_identifier + b'%d' % (update_ctr,))
+      else:
+        return (latest_version, uuid_string)
+
   """ create_entity(entity_json)
         calls to /entities/ endpoint
         entity_json: [str] currently formatted request body in EIQ-json for new entity
         returns: [python object] parsed json response from api
   """
-  def create_entity(self, entity_json, token=None):
+  def create_entity(self, entity_json, update_identifier=None, token=None):
     # auth token
     if not token:
       token = self.do_auth()
       if not token:
         raise Exception('create_entity was unable to authenticate')
+
+    if update_identifier:
+      prev_id, this_id = self.__get_latest_version_id(update_identifier, token)
+
+      # expensive way to update the id, but it keeps the usage of create_entiy simple
+      if isinstance(entity_json, bytes):
+        entity_json = entity_json.decode('utf-8')
+      entity_json = json.loads(entity_json)
+      entity_json['data']['id'] = this_id
+      entity_type = entity_json['data']['data']['type']
+      entity_json = json.dumps(entity_json)
+      
+      # if there was a previous version, we need to let update_entity handle the entire creation process
+      # otherwise, let the rest of create_entity handle the call
+      if prev_id:
+        return self.update_entity(entity_json, prev_id, entity_type, token=token)
+
     headers = {}
     headers['Authorization'] = 'Bearer %s' % (token['token'],)
 
@@ -121,7 +190,7 @@ class EIQApi:
   """
   def update_entity(self, updated_entity_json, old_entity_id, old_entity_type, token=None):
     # auth token
-    if not tokeN:
+    if not token:
       token = self.do_auth()
       if not token:
         raise Exception('update_entity was unable to authenticate')
@@ -129,7 +198,7 @@ class EIQApi:
     headers['Authorization'] = 'Bearer %s' % (token['token'],)
 
     # make call to create updated entity
-    ret = self.create_entity(updated_entity_json, token=token['token'])
+    ret = self.create_entity(updated_entity_json, token=token)
     if not ret:
       return None
     if 'errors' in ret:
@@ -137,8 +206,9 @@ class EIQApi:
 
     # updated entity created, now make it the successor of the old entity
     if 'data' in ret and 'source' in ret['data'] and 'data' in ret['data'] and 'type' in ret['data']['data']:
-      source_id = ret['data']['source']
+      source_id = ret['data']['id']
       source_type = ret['data']['data']['type']
+      meta_source = ret['data']['meta']['source']
     else:
       return None
 
@@ -146,6 +216,7 @@ class EIQApi:
     update.set_relation(update.RELATION_STIX_UPDATE)
     update.set_source(source_id, source_type)
     update.set_target(old_entity_id, old_entity_type)
+    update.set_ingest_source(meta_source)
     return self.create_entity(update.get_as_json(), token=token)
 
 if __name__ == '__main__':

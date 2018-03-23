@@ -7,7 +7,7 @@
 import os, sys, json, re, optparse, requests, urllib3, datetime, eiqjson, eiqcalls, pprint
 from config import settings
 
-def eiqIngest(eiqJSON,options):
+def eiqIngest(eiqJSON,options,args):
     if not settings.EIQSSLVERIFY:
         if options.verbose:
             print("W) You have disabled SSL verification for EIQ, this is not recommended.")
@@ -16,8 +16,11 @@ def eiqIngest(eiqJSON,options):
     eiqAPI.set_credentials(settings.EIQUSER,settings.EIQPASS)
     if not options.simulate:
         try:
-            print("U) Contacting "+EIQURL+'/api'+' ...')
-            response=eiqAPI.create_entity(eiqJSON)
+            print("U) Contacting "+settings.EIQURL+'/api'+' ...')
+            if not options.duplicate:
+                response=eiqAPI.create_entity(eiqJSON,update_identifier=settings.TITLETAG+'-'+args[0])
+            else:
+                response=eiqAPI.create_entity(eiqJSON)
         except:
             raise
             print("E) An error occurred contacting the EIQ URL at "+settings.EIQURL)
@@ -237,6 +240,8 @@ if __name__ == "__main__":
     cli.add_option('-i','--impact',dest='impact',default='Unknown',help='[optional] Set the impact level for the EclecticIQ entity (default: \'Unknown\')')
     cli.add_option('-t','--type',dest='type',default='i',help='[optional] Set the type of EclecticIQ entity you wish to create: [i]ndicator (default), [s]ighting or [t]TP. Not all entity types support all observables/extracts!')
     cli.add_option('-s','--simulate',dest='simulate',action='store_true',default=False,help='[optional] Do not actually ingest anything into EIQ, just simulate everything. Mostly useful with the -v/--verbose flag.')
+    cli.add_option('-n','--name',dest='name',default=settings.TITLETAG,help='[optional] Override the default TITLETAG name from the configuration file (default: TITLETAG in settings.py)')
+    cli.add_option('-d','--duplicate',dest='duplicate',action='store_true',default=False,help='[optional] Do not update the existing EclecticIQ entity, but create a new one (default: disabled)')
     (options,args)=cli.parse_args()
     if len(args)<1:
         cli.print_help()
@@ -250,9 +255,15 @@ if __name__ == "__main__":
         except:
             print("E) Please specify a numeric EventID only.")
             sys.exit(1)
+        if not options.confidence in ('Unknown','None','Low','Medium','High'):
+            print("E) Not a valid confidence setting! Please choose 'Unknown', 'None', 'Low', 'Medium' or 'High'.")
+            sys.exit(1)
+        if not options.impact in ('Unknown','None','Low','Medium','High'):
+            print("E) Not a valid impact setting! Please choose 'Unknown', 'None', 'Low', 'Medium' or 'High'.")
+            sys.exit(1)
         eventDict=download(eventID)
         eiqJSON=transform(eventDict,eventID,options)
         if eiqJSON:
             if options.verbose:
                 print(json.dumps(json.loads(eiqJSON),indent=2,sort_keys=True))
-            eiqIngest(eiqJSON,options)
+            eiqIngest(eiqJSON,options,args[0])
