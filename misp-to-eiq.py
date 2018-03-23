@@ -38,6 +38,12 @@ def eiqIngest(eiqJSON,options,args):
 def transform(eventDict,eventID,options):
     if options.verbose:
         print("U) Converting Event into EIQ JSON ...")
+    if not options.confidence in ('Unknown','None','Low','Medium','High'):
+        print("E) Not a valid confidence setting! Please choose 'Unknown', 'None', 'Low', 'Medium' or 'High'.")
+        sys.exit(1)
+    if not options.impact in ('Unknown','None','Low','Medium','High'):
+        print("E) Not a valid impact setting! Please choose 'Unknown', 'None', 'Low', 'Medium' or 'High'.")
+        sys.exit(1)
     try:
         if 'Event' in eventDict:
             mispevent=eventDict['Event']
@@ -243,6 +249,12 @@ if __name__ == "__main__":
     cli.add_option('-n','--name',dest='name',default=settings.TITLETAG,help='[optional] Override the default TITLETAG name from the configuration file (default: TITLETAG in settings.py)')
     cli.add_option('-d','--duplicate',dest='duplicate',action='store_true',default=False,help='[optional] Do not update the existing EclecticIQ entity, but create a new one (default: disabled)')
     (options,args)=cli.parse_args()
+    if not options.confidence in ('Unknown','None','Low','Medium','High'):
+        print("E) Not a valid confidence setting! Please choose 'Unknown', 'None', 'Low', 'Medium' or 'High'.")
+        sys.exit(1)
+    if not options.impact in ('Unknown','None','Low','Medium','High'):
+        print("E) Not a valid impact setting! Please choose 'Unknown', 'None', 'Low', 'Medium' or 'High'.")
+        sys.exit(1)
     if len(args)<1:
         cli.print_help()
         sys.exit(1)
@@ -254,12 +266,6 @@ if __name__ == "__main__":
             eventID=int(args[0])
         except:
             print("E) Please specify a numeric EventID only.")
-            sys.exit(1)
-        if not options.confidence in ('Unknown','None','Low','Medium','High'):
-            print("E) Not a valid confidence setting! Please choose 'Unknown', 'None', 'Low', 'Medium' or 'High'.")
-            sys.exit(1)
-        if not options.impact in ('Unknown','None','Low','Medium','High'):
-            print("E) Not a valid impact setting! Please choose 'Unknown', 'None', 'Low', 'Medium' or 'High'.")
             sys.exit(1)
         eventDict=download(eventID)
         eiqJSON=transform(eventDict,eventID,options)
