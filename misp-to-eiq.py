@@ -91,45 +91,45 @@ def transform(eventDict,eventID,options):
                     if type.startswith('filename|'):
                         filename=type[:9]
                         type=type[10:]
-                        entity.add_observable(entity.OBSERVABLE_FILE,filename)
+                        entity.add_observable(entity.OBSERVABLE_FILE,filename,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='md5':
-                        entity.add_observable(entity.OBSERVABLE_MD5,value)
+                        entity.add_observable(entity.OBSERVABLE_MD5,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha1':
-                        entity.add_observable(entity.OBSERVABLE_SHA1,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA1,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha256':
-                        entity.add_observable(entity.OBSERVABLE_SHA256,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA256,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha512':
-                        entity.add_observable(entity.OBSERVABLE_SHA512,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA512,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='email-subject':
-                        entity.add_observable(entity.OBSERVABLE_EMAIL_SUBJECT,value)
+                        entity.add_observable(entity.OBSERVABLE_EMAIL_SUBJECT,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALICIOUS_EMAIL)
                     if type=='email-body':
-                        entity.add_observable(entity.OBSERVABLE_EMAIL,value)
+                        entity.add_observable(entity.OBSERVABLE_EMAIL,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALICIOUS_EMAIL)
                     if type=='filename':
-                        entity.add_observable(entity.OBSERVABLE_FILE,value)
+                        entity.add_observable(entity.OBSERVABLE_FILE,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='url':
-                        entity.add_observable(entity.OBSERVABLE_URI,value)
+                        entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                     if type=='snort':
-                        entity.add_test_mechanism(entity.OBSERVABLE_SNORT, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
                     if type=='yara':
-                        entity.add_test_mechanism(entity.OBSERVABLE_YARA, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
                 if category=='payload delivery' or category=='payload installation':
                     if type.startswith('filename|'):
                         filename=type[:9]
@@ -177,63 +177,63 @@ def transform(eventDict,eventID,options):
                     if type.startswith('filename|'):
                         filename=type[:9]
                         type=type[10:]
-                        entity.add_observable(entity.OBSERVABLE_FILE,filename)
+                        entity.add_observable(entity.OBSERVABLE_FILE,filename,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='link':
-                        entity.add_observable(entity.OBSERVABLE_URI,value)
+                        entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                     if type=='md5':
-                        entity.add_observable(entity.OBSERVABLE_MD5,value)
+                        entity.add_observable(entity.OBSERVABLE_MD5,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha1':
-                        entity.add_observable(entity.OBSERVABLE_SHA1,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA1,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha256':
-                        entity.add_observable(entity.OBSERVABLE_SHA256,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA256,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha512':
-                        entity.add_observable(entity.OBSERVABLE_SHA512,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA512,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='filename':
-                        entity.add_observable(entity.OBSERVABLE_FILE,value)
+                        entity.add_observable(entity.OBSERVABLE_FILE,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='snort':
-                        entity.add_test_mechanism(entity.OBSERVABLE_SNORT, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
                     if type=='yara':
-                        entity.add_test_mechanism(entity.OBSERVABLE_YARA, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
                     if type=='text':
                         entity.set_entity_description("<pre>"+value+"</pre>")
                 if category=='network activity':
                     if type=='domain' or type=='hostname':
-                        entity.add_observable(entity.OBSERVABLE_DOMAIN,value)
+                        entity.add_observable(entity.OBSERVABLE_DOMAIN,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
                             entity.add_indicator_type(entity.INDICATOR_C2)
                     if type=='ip-src':
-                        entity.add_observable(entity.OBSERVABLE_IPV4,value)
+                        entity.add_observable(entity.OBSERVABLE_IPV4,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_IP_WATCHLIST)
                             entity.add_indicator_type(entity.INDICATOR_C2)
                     if type=='ip-dst':
-                        entity.add_observable(entity.OBSERVABLE_IPV4,value)
+                        entity.add_observable(entity.OBSERVABLE_IPV4,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_IP_WATCHLIST)
                             entity.add_indicator_type(entity.INDICATOR_C2)
                     if type=='url':
-                        entity.add_observable(entity.OBSERVABLE_URI,value)
+                        entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                     if type=='snort':
-                        entity.add_test_mechanism(entity.OBSERVABLE_SNORT, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
                     if type=='yara':
-                        entity.add_test_mechanism(entity.OBSERVABLE_YARA, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
                 if category=='other':
                     entity.set_entity_description("<pre>"+value+"</pre>")
                     analysis=value.lower()
@@ -379,7 +379,7 @@ def transform(eventDict,eventID,options):
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                         if type=='link':
-                            entity.add_observable(entity.OBSERVABLE_URI,value)
+                            entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                         if type=='md5':
@@ -410,22 +410,22 @@ def transform(eventDict,eventID,options):
                             entity.set_entity_description("<pre>"+value+"</pre>")
                     if category=='network activity':
                         if type=='domain' or type=='hostname':
-                            entity.add_observable(entity.OBSERVABLE_DOMAIN,value)
+                            entity.add_observable(entity.OBSERVABLE_DOMAIN,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
                                 entity.add_indicator_type(entity.INDICATOR_C2)
                         if type=='ip-src':
-                            entity.add_observable(entity.OBSERVABLE_IPV4,value)
+                            entity.add_observable(entity.OBSERVABLE_IPV4,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_IP_WATCHLIST)
                                 entity.add_indicator_type(entity.INDICATOR_C2)
                         if type=='ip-dst':
-                            entity.add_observable(entity.OBSERVABLE_IPV4,value)
+                            entity.add_observable(entity.OBSERVABLE_IPV4,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_IP_WATCHLIST)
                                 entity.add_indicator_type(entity.INDICATOR_C2)
                         if type=='url':
-                            entity.add_observable(entity.OBSERVABLE_URI,value)
+                            entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                         if type=='snort':
