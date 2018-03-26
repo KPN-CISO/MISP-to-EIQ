@@ -16,7 +16,8 @@ def eiqIngest(eiqJSON,options,uuid):
     eiqAPI.set_credentials(settings.EIQUSER,settings.EIQPASS)
     if not options.simulate:
         try:
-            print("U) Contacting "+settings.EIQURL+'/api'+' ...')
+            if options.verbose:
+                print("U) Contacting "+settings.EIQURL+'/api'+' ...')
             if not options.duplicate:
                 response=eiqAPI.create_entity(eiqJSON,update_identifier=uuid)
             else:
@@ -65,6 +66,8 @@ def transform(eventDict,eventID,options):
                 timestamp=datetime.datetime.utcfromtimestamp(int(mispevent['timestamp'])).strftime("%Y-%m-%dT%H:%M:%SZ")
             if 'uuid' in mispevent:
                 uuid=mispevent['uuid']
+            if 'Orgc' in mispevent:
+                entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'])
             else:
                 uuid=str(eventID)
             entity.set_entity_observed_time(timestamp)
