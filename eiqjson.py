@@ -325,7 +325,7 @@ class EIQEntity:
 
     extract['value'] = value
     extract['kind'] = extract_type
-    extract['link_type'] = 'sighting'
+    extract['link_type'] = 'sighted'
     if classification != None:
       extract['classification'] = classification
 
@@ -343,7 +343,7 @@ class EIQEntity:
 
     extract['value'] = value
     extract['kind'] = extract_type
-    extract['link_type'] = 'test_mechanism'
+    extract['link_type'] = 'test-mechanism'
     if classification != None:
       extract['classification'] = classification
 
