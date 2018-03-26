@@ -126,8 +126,10 @@ def transform(eventDict,eventID,options):
                         entity.add_observable(entity.OBSERVABLE_URI,value)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                    if type=='snort':
+                        entity.add_test_mechanism(entity.OBSERVABLE_SNORT, value)
                     if type=='yara':
-                        entity.add_observable(entity.OBSERVABLE_YARA, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_YARA, value)
                 if category=='payload delivery' or category=='payload installation':
                     if type.startswith('filename|'):
                         filename=type[:9]
@@ -168,9 +170,9 @@ def transform(eventDict,eventID,options):
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                     if type=='snort':
-                        entity.add_observable(entity.OBSERVABLE_SNORT, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_SNORT, value)
                     if type=='yara':
-                        entity.add_observable(entity.OBSERVABLE_YARA, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_YARA, value)
                 if category=='external analysis':
                     if type.startswith('filename|'):
                         filename=type[:9]
@@ -203,9 +205,9 @@ def transform(eventDict,eventID,options):
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='snort':
-                        entity.add_observable(entity.OBSERVABLE_SNORT, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_SNORT, value)
                     if type=='yara':
-                        entity.add_observable(entity.OBSERVABLE_YARA, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_YARA, value)
                     if type=='text':
                         entity.set_entity_description("<pre>"+value+"</pre>")
                 if category=='network activity':
@@ -229,9 +231,9 @@ def transform(eventDict,eventID,options):
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                     if type=='snort':
-                        entity.add_observable(entity.OBSERVABLE_SNORT, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_SNORT, value)
                     if type=='yara':
-                        entity.add_observable(entity.OBSERVABLE_YARA, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_YARA, value)
                 if category=='other':
                     entity.set_entity_description("<pre>"+value+"</pre>")
                     analysis=value.lower()

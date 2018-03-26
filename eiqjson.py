@@ -295,7 +295,7 @@ class EIQEntity:
     if not ttp_type_object in self.__doc['data']['data']['intended_effects']:
       self.__doc['data']['data']['intended_effects'].append(ttp_type_object)
 
-  def add_observable(self, observable_type, value, classification = None):
+  def add_observable(self, extract_type, value, classification = None):
 #    if not observable_type in self.OBSERVABLE_TYPES:
 #      raise Exception('Expecting observable_type from OBSERVABLE_TYPES')
     if not self.__is_entity_set:
@@ -303,15 +303,51 @@ class EIQEntity:
     if not 'manual_extracts' in self.__doc['data']['meta'].keys():
       self.__doc['data']['meta']['manual_extracts'] = []
 
-    observable = {}
+    extract = {}
 
-    observable['value'] = value
-    observable['kind'] = observable_type
-    observable['link_type'] = 'observed'
+    extract['value'] = value
+    extract['kind'] = extract_type
+    extract['link_type'] = 'observed'
     if classification != None:
-      observable['classification'] = classification
+      extract['classification'] = classification
 
-    self.__doc['data']['meta']['manual_extracts'].append(observable)
+    self.__doc['data']['meta']['manual_extracts'].append(extract)
+
+  def add_sighting(self, extract_type, value, classification = None):
+#    if not extract_type in self.OBSERVABLE_TYPES:
+#      raise Exception('Expecting observable_type from OBSERVABLE_TYPES')
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    if not 'manual_extracts' in self.__doc['data']['meta'].keys():
+      self.__doc['data']['meta']['manual_extracts'] = []
+
+    extract = {}
+
+    extract['value'] = value
+    extract['kind'] = extract_type
+    extract['link_type'] = 'sighting'
+    if classification != None:
+      extract['classification'] = classification
+
+    self.__doc['data']['meta']['manual_extracts'].append(extract)
+
+  def add_test_mechanism(self, extract_type, value, classification = None):
+#    if not observable_type in self.OBSERVABLE_TYPES:
+#      raise Exception('Expecting observable_type from OBSERVABLE_TYPES')
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    if not 'manual_extracts' in self.__doc['data']['meta'].keys():
+      self.__doc['data']['meta']['manual_extracts'] = []
+
+    extract = {}
+
+    extract['value'] = value
+    extract['kind'] = extract_type
+    extract['link_type'] = 'test_mechanism'
+    if classification != None:
+      extract['classification'] = classification
+
+    self.__doc['data']['meta']['manual_extracts'].append(extract)
 
   def get_as_dict(self):
     if not self.__is_entity_set:
