@@ -27,6 +27,9 @@ Running ./misp-to-eiq.py without command-line options or `-h` will display help:
 `-c` / `--confidence` lets you set the confidence level for the EclecticIQ entity  
 `-i` / `--impact` lets you set the (likely) impact for the EclecticIQ entity  
 `-t` / `--type` lets you choose what to ingest the MISP event as: [i]ndicator or [s]ighting  
+`-s` / `--simulate` do not actually ingest anything into EclecticIQ, just pretend (useful with `-v`)  
+`-n` / `--name` override the default TITLETAG setting from the configuration file  
+`-d` / `--duplicate` do not update the existing entity in EclecticIQ, but create duplicates (default: disabled)  
 
 # Copyright
 
