@@ -87,6 +87,47 @@ def transform(eventDict,eventID,options):
                 category=attribute['category'].lower()
                 type=attribute['type'].lower()
                 value=attribute['value']
+                if category=='artifacts dropped':
+                    if type.startswith('filename|'):
+                        filename=type[:9]
+                        type=type[10:]
+                        entity.add_observable(entity.OBSERVABLE_FILE,filename)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                    if type=='md5':
+                        entity.add_observable(entity.OBSERVABLE_MD5,value)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                    if type=='sha1':
+                        entity.add_observable(entity.OBSERVABLE_SHA1,value)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                    if type=='sha256':
+                        entity.add_observable(entity.OBSERVABLE_SHA256,value)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                    if type=='sha512':
+                        entity.add_observable(entity.OBSERVABLE_SHA512,value)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                    if type=='email-subject':
+                        entity.add_observable(entity.OBSERVABLE_EMAIL_SUBJECT,value)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_MALICIOUS_EMAIL)
+                    if type=='email-body':
+                        entity.add_observable(entity.OBSERVABLE_EMAIL,value)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_MALICIOUS_EMAIL)
+                    if type=='filename':
+                        entity.add_observable(entity.OBSERVABLE_FILE,value)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                    if type=='url':
+                        entity.add_observable(entity.OBSERVABLE_URI,value)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                    if type=='yara':
+                        entity.add_observable(entity.OBSERVABLE_YARA, value)
                 if category=='payload delivery' or category=='payload installation':
                     if type.startswith('filename|'):
                         filename=type[:9]
@@ -126,6 +167,10 @@ def transform(eventDict,eventID,options):
                         entity.add_observable(entity.OBSERVABLE_URI,value)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                    if type=='snort':
+                        entity.add_observable(entity.OBSERVABLE_SNORT, value)
+                    if type=='yara':
+                        entity.add_observable(entity.OBSERVABLE_YARA, value)
                 if category=='external analysis':
                     if type.startswith('filename|'):
                         filename=type[:9]
@@ -157,6 +202,10 @@ def transform(eventDict,eventID,options):
                         entity.add_observable(entity.OBSERVABLE_FILE,value)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                    if type=='snort':
+                        entity.add_observable(entity.OBSERVABLE_SNORT, value)
+                    if type=='yara':
+                        entity.add_observable(entity.OBSERVABLE_YARA, value)
                     if type=='text':
                         entity.set_entity_description("<pre>"+value+"</pre>")
                 if category=='network activity':
@@ -164,6 +213,11 @@ def transform(eventDict,eventID,options):
                         entity.add_observable(entity.OBSERVABLE_DOMAIN,value)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_C2)
+                    if type=='ip-src':
+                        entity.add_observable(entity.OBSERVABLE_IPV4,value)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_IP_WATCHLIST)
                             entity.add_indicator_type(entity.INDICATOR_C2)
                     if type=='ip-dst':
                         entity.add_observable(entity.OBSERVABLE_IPV4,value)
@@ -174,6 +228,10 @@ def transform(eventDict,eventID,options):
                         entity.add_observable(entity.OBSERVABLE_URI,value)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                    if type=='snort':
+                        entity.add_observable(entity.OBSERVABLE_SNORT, value)
+                    if type=='yara':
+                        entity.add_observable(entity.OBSERVABLE_YARA, value)
                 if category=='other':
                     entity.set_entity_description("<pre>"+value+"</pre>")
                     analysis=value.lower()

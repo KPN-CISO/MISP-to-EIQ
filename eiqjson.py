@@ -58,7 +58,9 @@ class EIQEntity:
   OBSERVABLE_DOMAIN = 'domain'
   OBSERVABLE_EMAIL = 'email'
   OBSERVABLE_EMAIL_SUBJECT = 'email-subject'
+  OBSERVABLE_SNORT = 'snort'
   OBSERVABLE_WINREGISTRY = 'winregistry'
+  OBSERVABLE_YARA = 'yara'
 
   OBSERVABLE_TYPES = [
     OBSERVABLE_IPV4,
