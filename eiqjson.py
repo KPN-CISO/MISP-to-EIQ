@@ -337,8 +337,7 @@ class EIQEntity:
           extract['confidence'] = self.CONFIDENCE_LOW
         else:
           extract['confidence'] = confidence
-      else:
-        extract['classification'] = classification
+      extract['classification'] = classification
 
     self.__doc['data']['meta']['manual_extracts'].append(extract)
 
@@ -364,8 +363,7 @@ class EIQEntity:
           extract['confidence'] = self.CONFIDENCE_LOW
         else:
           extract['confidence'] = confidence
-      else:
-        extract['classification'] = classification
+      extract['classification'] = classification
 
     self.__doc['data']['meta']['manual_extracts'].append(extract)
 
@@ -391,8 +389,7 @@ class EIQEntity:
           extract['confidence'] = self.CONFIDENCE_LOW
         else:
           extract['confidence'] = confidence
-      else:
-        extract['classification'] = classification
+      extract['classification'] = classification
 
     self.__doc['data']['meta']['manual_extracts'].append(extract)
 
