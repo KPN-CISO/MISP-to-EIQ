@@ -271,7 +271,7 @@ if __name__ == "__main__":
         except:
             print("E) Please specify a numeric EventID only.")
             sys.exit(1)
-        eventDict=download(eventID)
+        eventDict=download(eventID,options)
         eiqJSON=transform(eventDict,eventID,options)
         if eiqJSON:
             if options.verbose:
