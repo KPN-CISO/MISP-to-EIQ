@@ -210,7 +210,7 @@ def transform(eventDict,eventID,options):
                         entity.add_ttp_type(entity.TTP_ACCOUNT_TAKEOVER)
                     if 'harassment' in analysis:
                         entity.add_ttp_type(entity.TTP_HARASSMENT)
-            entity.set_entity_description(entity.get_entity_description()+"\n\nOriginal MISP UUID: "+uuid+"\n")
+            entity.set_entity_description(entity.get_entity_description()+"<pre>Original MISP UUID: "+uuid+"</pre>")
             return entity.get_as_json(),uuid
         else:
             if not options.verbose:
