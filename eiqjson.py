@@ -217,6 +217,11 @@ class EIQEntity:
     self.__doc['data']['data']['description'] = description
     self.__doc['data']['data']['description_structuring_format'] = description_format
 
+  def get_entity_description(self):
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    return self.__doc['data']['data']['description']
+
   def set_entity_observed_time(self, observed_time):
     if not self.__is_entity_set:
       raise Exception('You need to set an entity first using set_entity(...)')

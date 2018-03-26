@@ -7,7 +7,7 @@
 import os, sys, json, re, optparse, requests, urllib3, datetime, eiqjson, eiqcalls, pprint
 from config import settings
 
-def eiqIngest(eiqJSON,options,args):
+def eiqIngest(eiqJSON,options,uuid):
     if not settings.EIQSSLVERIFY:
         if options.verbose:
             print("W) You have disabled SSL verification for EIQ, this is not recommended.")
@@ -18,7 +18,7 @@ def eiqIngest(eiqJSON,options,args):
         try:
             print("U) Contacting "+settings.EIQURL+'/api'+' ...')
             if not options.duplicate:
-                response=eiqAPI.create_entity(eiqJSON,update_identifier=settings.TITLETAG+'-'+args[0])
+                response=eiqAPI.create_entity(eiqJSON,update_identifier=uuid)
             else:
                 response=eiqAPI.create_entity(eiqJSON)
         except:
@@ -63,6 +63,10 @@ def transform(eventDict,eventID,options):
                 entity.set_entity_description(mispevent['value'])
             if 'timestamp' in mispevent:
                 timestamp=datetime.datetime.utcfromtimestamp(int(mispevent['timestamp'])).strftime("%Y-%m-%dT%H:%M:%SZ")
+            if 'uuid' in mispevent:
+                uuid=mispevent['uuid']
+            else:
+                uuid=str(eventID)
             entity.set_entity_observed_time(timestamp)
             tlp=''
             for tag in mispevent['Tag']:
@@ -150,6 +154,8 @@ def transform(eventDict,eventID,options):
                         entity.add_observable(entity.OBSERVABLE_FILE,value)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                    if type=='text':
+                        entity.set_entity_description("<pre>"+value+"</pre>")
                 if category=='network activity':
                     if type=='domain' or type=='hostname':
                         entity.add_observable(entity.OBSERVABLE_DOMAIN,value)
@@ -204,7 +210,8 @@ def transform(eventDict,eventID,options):
                         entity.add_ttp_type(entity.TTP_ACCOUNT_TAKEOVER)
                     if 'harassment' in analysis:
                         entity.add_ttp_type(entity.TTP_HARASSMENT)
-            return entity.get_as_json()
+            entity.set_entity_description(entity.get_entity_description()+"\n\nOriginal MISP UUID: "+uuid+"\n")
+            return entity.get_as_json(),uuid
         else:
             if not options.verbose:
                 print("E) An empty result or other error was returned by MISP. Enable verbosity to see the JSON result that was returned.")
@@ -272,8 +279,8 @@ if __name__ == "__main__":
             print("E) Please specify a numeric EventID only.")
             sys.exit(1)
         eventDict=download(eventID,options)
-        eiqJSON=transform(eventDict,eventID,options)
+        eiqJSON,uuid=transform(eventDict,eventID,options)
         if eiqJSON:
             if options.verbose:
                 print(json.dumps(json.loads(eiqJSON),indent=2,sort_keys=True))
-            eiqIngest(eiqJSON,options,args[0])
+            eiqIngest(eiqJSON,options,uuid)
