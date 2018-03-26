@@ -115,6 +115,10 @@ def transform(eventDict,eventID,options):
                         entity.add_observable(entity.OBSERVABLE_FILE,value)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                    if type=='url':
+                        entity.add_observable(entity.OBSERVABLE_URI,value)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                 if category=='external analysis':
                     if type.startswith('filename|'):
                         filename=type[:9]
@@ -211,7 +215,7 @@ def transform(eventDict,eventID,options):
         raise
         sys.exit(1)
 
-def download(eventID):
+def download(eventID,options):
     if options.verbose:
         print("U) Parsing MISP Event ID "+str(eventID)+" ...")
     try:
