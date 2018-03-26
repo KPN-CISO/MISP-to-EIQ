@@ -153,6 +153,26 @@ class EIQEntity:
     TTP_UNAUTHORIZED_ACCESS
   ]
 
+  CLASSIFICATION_BAD = 'bad'
+  CLASSIFICATION_GOOD = 'good'
+  CLASSIFICATION_UNKNOWN = 'unknown'
+
+  CLASSIFICATION_TYPES = [
+    CLASSIFICATION_BAD,
+    CLASSIFICATION_GOOD,
+    CLASSIFICATION_UNKNOWN
+  ]
+
+  CONFIDENCE_LOW = 'low'
+  CONFIDENCE_MEDIUM = 'medium'
+  CONFIDENCE_HIGH = 'high'
+
+  CONFIDENCE_TYPES = [
+    CONFIDENCE_LOW,
+    CONFIDENCE_MEDIUM,
+    CONFIDENCE_HIGH
+  ]
+
   def __init__(self):
     self.__is_entity_set = False
     self.__doc = {}
@@ -295,7 +315,7 @@ class EIQEntity:
     if not ttp_type_object in self.__doc['data']['data']['intended_effects']:
       self.__doc['data']['data']['intended_effects'].append(ttp_type_object)
 
-  def add_observable(self, extract_type, value, classification = None):
+  def add_observable(self, extract_type, value, classification = '', confidence = ''):
 #    if not observable_type in self.OBSERVABLE_TYPES:
 #      raise Exception('Expecting observable_type from OBSERVABLE_TYPES')
     if not self.__is_entity_set:
@@ -308,12 +328,21 @@ class EIQEntity:
     extract['value'] = value
     extract['kind'] = extract_type
     extract['link_type'] = 'observed'
-    if classification != None:
-      extract['classification'] = classification
+
+    if not classification in self.CLASSIFICATION_TYPES:
+      extract['classification'] = self.CLASSIFICATION_UNKNOWN
+    else:
+      if classification == self.CLASSIFICATION_BAD:
+        if not confidence in self.CONFIDENCE_TYPES:
+          extract['confidence'] = self.CONFIDENCE_LOW
+        else:
+          extract['confidence'] = confidence
+      else:
+        extract['classification'] = classification
 
     self.__doc['data']['meta']['manual_extracts'].append(extract)
 
-  def add_sighting(self, extract_type, value, classification = None):
+  def add_sighting(self, extract_type, value, classification = '', confidence = ''):
 #    if not extract_type in self.OBSERVABLE_TYPES:
 #      raise Exception('Expecting observable_type from OBSERVABLE_TYPES')
     if not self.__is_entity_set:
@@ -326,12 +355,21 @@ class EIQEntity:
     extract['value'] = value
     extract['kind'] = extract_type
     extract['link_type'] = 'sighted'
-    if classification != None:
-      extract['classification'] = classification
+
+    if not classification in self.CLASSIFICATION_TYPES:
+      extract['classification'] = self.CLASSIFICATION_UNKNOWN
+    else:
+      if classification == self.CLASSIFICATION_BAD:
+        if not confidence in self.CONFIDENCE_TYPES:
+          extract['confidence'] = self.CONFIDENCE_LOW
+        else:
+          extract['confidence'] = confidence
+      else:
+        extract['classification'] = classification
 
     self.__doc['data']['meta']['manual_extracts'].append(extract)
 
-  def add_test_mechanism(self, extract_type, value, classification = None):
+  def add_test_mechanism(self, extract_type, value, classification = '', confidence = ''):
 #    if not observable_type in self.OBSERVABLE_TYPES:
 #      raise Exception('Expecting observable_type from OBSERVABLE_TYPES')
     if not self.__is_entity_set:
@@ -344,8 +382,17 @@ class EIQEntity:
     extract['value'] = value
     extract['kind'] = extract_type
     extract['link_type'] = 'test-mechanism'
-    if classification != None:
-      extract['classification'] = classification
+
+    if not classification in self.CLASSIFICATION_TYPES:
+      extract['classification'] = self.CLASSIFICATION_UNKNOWN
+    else:
+      if classification == self.CLASSIFICATION_BAD:
+        if not confidence in self.CONFIDENCE_TYPES:
+          extract['confidence'] = self.CONFIDENCE_LOW
+        else:
+          extract['confidence'] = confidence
+      else:
+        extract['classification'] = classification
 
     self.__doc['data']['meta']['manual_extracts'].append(extract)
 

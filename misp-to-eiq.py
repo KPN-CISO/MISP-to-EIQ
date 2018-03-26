@@ -138,41 +138,41 @@ def transform(eventDict,eventID,options):
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='md5':
-                        entity.add_observable(entity.OBSERVABLE_MD5,value)
+                        entity.add_observable(entity.OBSERVABLE_MD5,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha1':
-                        entity.add_observable(entity.OBSERVABLE_SHA1,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA1,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha256':
-                        entity.add_observable(entity.OBSERVABLE_SHA256,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA256,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='sha512':
-                        entity.add_observable(entity.OBSERVABLE_SHA512,value)
+                        entity.add_observable(entity.OBSERVABLE_SHA512,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
                     if type=='email-subject':
-                        entity.add_observable(entity.OBSERVABLE_EMAIL_SUBJECT,value)
+                        entity.add_observable(entity.OBSERVABLE_EMAIL_SUBJECT,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALICIOUS_EMAIL)
                     if type=='email-body':
-                        entity.add_observable(entity.OBSERVABLE_EMAIL,value)
+                        entity.add_observable(entity.OBSERVABLE_EMAIL,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALICIOUS_EMAIL)
                     if type=='filename':
-                        entity.add_observable(entity.OBSERVABLE_FILE,value)
+                        entity.add_observable(entity.OBSERVABLE_FILE,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='url':
-                        entity.add_observable(entity.OBSERVABLE_URI,value)
+                        entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                     if type=='snort':
-                        entity.add_test_mechanism(entity.OBSERVABLE_SNORT, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
                     if type=='yara':
-                        entity.add_test_mechanism(entity.OBSERVABLE_YARA, value)
+                        entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
                 if category=='external analysis':
                     if type.startswith('filename|'):
                         filename=type[:9]
@@ -273,6 +273,197 @@ def transform(eventDict,eventID,options):
                         entity.add_ttp_type(entity.TTP_ACCOUNT_TAKEOVER)
                     if 'harassment' in analysis:
                         entity.add_ttp_type(entity.TTP_HARASSMENT)
+            for attribute in mispevent['Object']:
+                for shadowAttribute in attribute['Attribute']:
+                    category=shadowAttribute['category'].lower()
+                    type=shadowAttribute['type'].lower()
+                    value=shadowAttribute['value']
+                    if category=='artifacts dropped':
+                        if type.startswith('filename|'):
+                            filename=type[:9]
+                            type=type[10:]
+                            entity.add_observable(entity.OBSERVABLE_FILE,filename)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                        if type=='md5':
+                            entity.add_observable(entity.OBSERVABLE_MD5,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                        if type=='sha1':
+                            entity.add_observable(entity.OBSERVABLE_SHA1,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                        if type=='sha256':
+                            entity.add_observable(entity.OBSERVABLE_SHA256,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                        if type=='sha512':
+                            entity.add_observable(entity.OBSERVABLE_SHA512,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                        if type=='email-subject':
+                            entity.add_observable(entity.OBSERVABLE_EMAIL_SUBJECT,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALICIOUS_EMAIL)
+                        if type=='email-body':
+                            entity.add_observable(entity.OBSERVABLE_EMAIL,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALICIOUS_EMAIL)
+                        if type=='filename':
+                            entity.add_observable(entity.OBSERVABLE_FILE,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                        if type=='url':
+                            entity.add_observable(entity.OBSERVABLE_URI,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                        if type=='snort':
+                            entity.add_test_mechanism(entity.OBSERVABLE_SNORT, value)
+                        if type=='yara':
+                            entity.add_test_mechanism(entity.OBSERVABLE_YARA, value)
+                    if category=='payload delivery' or category=='payload installation':
+                        if type.startswith('filename|'):
+                            filename=type[:9]
+                            type=type[10:]
+                            entity.add_observable(entity.OBSERVABLE_FILE,filename)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                        if type=='md5':
+                            entity.add_observable(entity.OBSERVABLE_MD5,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                        if type=='sha1':
+                            entity.add_observable(entity.OBSERVABLE_SHA1,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                        if type=='sha256':
+                            entity.add_observable(entity.OBSERVABLE_SHA256,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                        if type=='sha512':
+                            entity.add_observable(entity.OBSERVABLE_SHA512,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                        if type=='email-subject':
+                            entity.add_observable(entity.OBSERVABLE_EMAIL_SUBJECT,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALICIOUS_EMAIL)
+                        if type=='email-body':
+                            entity.add_observable(entity.OBSERVABLE_EMAIL,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALICIOUS_EMAIL)
+                        if type=='filename':
+                            entity.add_observable(entity.OBSERVABLE_FILE,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                        if type=='url':
+                            entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                        if type=='snort':
+                            entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
+                        if type=='yara':
+                            entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
+                    if category=='external analysis':
+                        if type.startswith('filename|'):
+                            filename=type[:9]
+                            type=type[10:]
+                            entity.add_observable(entity.OBSERVABLE_FILE,filename)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                        if type=='link':
+                            entity.add_observable(entity.OBSERVABLE_URI,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                        if type=='md5':
+                            entity.add_observable(entity.OBSERVABLE_MD5,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                        if type=='sha1':
+                            entity.add_observable(entity.OBSERVABLE_SHA1,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                        if type=='sha256':
+                            entity.add_observable(entity.OBSERVABLE_SHA256,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                        if type=='sha512':
+                            entity.add_observable(entity.OBSERVABLE_SHA512,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_FILE_HASH_WATCHLIST)
+                        if type=='filename':
+                            entity.add_observable(entity.OBSERVABLE_FILE,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                        if type=='snort':
+                            entity.add_test_mechanism(entity.OBSERVABLE_SNORT, value)
+                        if type=='yara':
+                            entity.add_test_mechanism(entity.OBSERVABLE_YARA, value)
+                        if type=='text':
+                            entity.set_entity_description("<pre>"+value+"</pre>")
+                    if category=='network activity':
+                        if type=='domain' or type=='hostname':
+                            entity.add_observable(entity.OBSERVABLE_DOMAIN,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
+                                entity.add_indicator_type(entity.INDICATOR_C2)
+                        if type=='ip-src':
+                            entity.add_observable(entity.OBSERVABLE_IPV4,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_IP_WATCHLIST)
+                                entity.add_indicator_type(entity.INDICATOR_C2)
+                        if type=='ip-dst':
+                            entity.add_observable(entity.OBSERVABLE_IPV4,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_IP_WATCHLIST)
+                                entity.add_indicator_type(entity.INDICATOR_C2)
+                        if type=='url':
+                            entity.add_observable(entity.OBSERVABLE_URI,value)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                        if type=='snort':
+                            entity.add_test_mechanism(entity.OBSERVABLE_SNORT, value)
+                        if type=='yara':
+                            entity.add_test_mechanism(entity.OBSERVABLE_YARA, value)
+                    if category=='other':
+                        entity.set_entity_description("<pre>"+value+"</pre>")
+                        analysis=value.lower()
+                        if 'banking' in analysis:
+                            entity.add_ttp_type(entity.TTP_ADVANTAGE)
+                            entity.add_ttp_type(entity.TTP_ADVANTAGE_ECONOMIC)
+                        if 'fraud' in analysis:
+                            entity.add_ttp_type(entity.TTP_FRAUD)
+                        if ('intellectual property' or 'proprietary information') in analysis:
+                            entity.add_ttp_type(entity.TTP_THEFT)
+                            entity.add_ttp_type(entity.TTP_THEFT_INTELLECTUAL_PROPERTY)
+                            entity.add_ttp_type(entity.TTP_THEFT_THEFT_OF_PROPRIETARY_INFORMATION)
+                        if 'brand damage' in analysis:
+                            entity.add_ttp_type(entity.TTP_BRAND_DAMAGE)
+                        if 'political' in analysis:
+                            entity.add_ttp_type(entity.TTP_ADVANTAGE_POLITICAL)
+                        if 'theft' in analysis:
+                            entity.add_ttp_type(entity.TTP_THEFT)
+                            if 'credential theft' in analysis:
+                                entity.add_ttp_type(entity.TTP_THEFT_CREDENTIAL_THEFT)
+                            if 'identity theft' in analysis:
+                                entity.add_ttp_type(entity.TTP_THEFT_IDENTITY_THEFT)
+                        if 'economic' in analysis:
+                            entity.add_ttp_type(entity.TTP_ADVANTAGE)
+                            entity.add_ttp_type(entity.TTP_ADVANTAGE_ECONOMIC)
+                        if 'destruction' in analysis:
+                            entity.add_ttp_type(entity.TTP_DESTRUCTION)
+                        if 'disruption' in analysis:
+                            entity.add_ttp_type(entity.TTP_DISRUPTION)
+                        if 'traffic diversion' in analysis:
+                            entity.add_ttp_type(entity.TTP_TRAFFIC_DIVERSION)
+                        if 'extortion' in analysis:
+                            entity.add_ttp_type(entity.TTP_EXTORTION)
+                        if 'unauthorized access' in analysis:
+                            entity.add_ttp_type(entity.TTP_UNAUTHORIZED_ACCESS)
+                        if 'account takeover' in analysis:
+                            entity.add_ttp_type(entity.TTP_ACCOUNT_TAKEOVER)
+                        if 'harassment' in analysis:
+                            entity.add_ttp_type(entity.TTP_HARASSMENT)
             entity.set_entity_description(entity.get_entity_description()+"<pre>Original MISP UUID: "+uuid+"</pre>")
             return entity.get_as_json(),uuid
         else:
