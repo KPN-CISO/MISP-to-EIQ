@@ -60,23 +60,23 @@ def transform(eventDict,eventID,options):
                 print("E) MISP Entity ID has no title, which can lead to problems ingesting, processing and finding data in EIQ.")
                 sys.exit(1)
             entity.set_entity_title(settings.TITLETAG+" Event "+str(eventID)+" - "+mispevent['info'])
-            if 'value' in mispevent:
-                entity.set_entity_description(mispevent['value'])
             if 'timestamp' in mispevent:
                 timestamp=datetime.datetime.utcfromtimestamp(int(mispevent['timestamp'])).strftime("%Y-%m-%dT%H:%M:%SZ")
+            entity.set_entity_observed_time(timestamp)
             if 'uuid' in mispevent:
                 uuid=mispevent['uuid']
             if 'Orgc' in mispevent:
                 entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'])
             else:
                 uuid=str(eventID)
-            entity.set_entity_observed_time(timestamp)
             tlp=''
             for tag in mispevent['Tag']:
                 tagid=tag['id'].lower()
                 tagname=tag['name'].lower()
                 if tagname.startswith('tlp:') and not tlp:
-                    tlp=(tagname[4:])
+                    tlp=tagname[4:]
+                if tagname.startswith('misp-galaxy:threat-actor='):
+                    entity.add_observable(entity.OBSERVABLE_ACTOR,re.sub('[\'\"\`]','',tag['name'][26:]))
             if not tlp:
                 tlp='amber'
             entity.set_entity_tlp(tlp)
@@ -182,6 +182,10 @@ def transform(eventDict,eventID,options):
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='link':
                         entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                    if type=='url':
+                        entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_LOW)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                     if type=='md5':
@@ -382,6 +386,10 @@ def transform(eventDict,eventID,options):
                             entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                        if type=='url':
+                            entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_LOW)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                         if type=='md5':
                             entity.add_observable(entity.OBSERVABLE_MD5,value)
                             if options.type=='i':
@@ -433,7 +441,6 @@ def transform(eventDict,eventID,options):
                         if type=='yara':
                             entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
                     if category=='other':
-                        entity.set_entity_description("<pre>"+value+"</pre>")
                         analysis=value.lower()
                         if 'banking' in analysis:
                             entity.add_ttp_type(entity.TTP_ADVANTAGE)
@@ -470,7 +477,7 @@ def transform(eventDict,eventID,options):
                         if 'account takeover' in analysis:
                             entity.add_ttp_type(entity.TTP_ACCOUNT_TAKEOVER)
                         if 'harassment' in analysis:
-                            entity.add_ttp_type(entity.TTP_HARASSMENT)                            
+                            entity.add_ttp_type(entity.TTP_HARASSMENT)
             entity.set_entity_description(entity.get_entity_description()+"<pre>Original MISP UUID: "+uuid+"</pre>")
             return entity.get_as_json(),uuid
         else:
