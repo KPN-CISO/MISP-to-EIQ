@@ -66,7 +66,7 @@ def transform(eventDict,eventID,options):
             if 'uuid' in mispevent:
                 uuid=mispevent['uuid']
             if 'Orgc' in mispevent:
-                entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'])
+                entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'],classification=entity.CLASSIFICATION_GOOD)
             else:
                 uuid=str(eventID)
             tlp=''
@@ -85,6 +85,7 @@ def transform(eventDict,eventID,options):
             if options.type=='i' or options.type=='s':
                 entity.set_entity_impact(options.impact)
             entity.set_entity_confidence(options.confidence)
+            attributes=mispevent['Attribute']
             for attribute in mispevent['Attribute']:
                 category=attribute['category'].lower()
                 type=attribute['type'].lower()
