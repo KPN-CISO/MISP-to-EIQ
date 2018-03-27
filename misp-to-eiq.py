@@ -77,6 +77,8 @@ def transform(eventDict,eventID,options):
                     tlp=tagname[4:]
                 if tagname.startswith('misp-galaxy:threat-actor='):
                     entity.add_observable(entity.OBSERVABLE_ACTOR,re.sub('[\'\"\`]','',tag['name'][26:]))
+                if tagname.startswith('admiralty-scale:source-reliability='):
+                    entity.set_entity_reliability(re.sub('[\'\"\`]','',tag['name'][36:].upper()))
             if not tlp:
                 tlp='amber'
             entity.set_entity_tlp(tlp)
