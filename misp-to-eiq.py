@@ -66,10 +66,12 @@ def transform(eventDict,eventID,options):
             entity.set_entity_observed_time(timestamp)
             if 'uuid' in mispevent:
                 uuid=mispevent['uuid']
-            if 'Orgc' in mispevent:
-                entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'],classification=entity.CLASSIFICATION_GOOD)
             else:
                 uuid=str(eventID)
+            if 'Org' in mispevent:
+                entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'],classification=entity.CLASSIFICATION_GOOD)
+            if 'Orgc' in mispevent:
+                entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'],classification=entity.CLASSIFICATION_GOOD)
             tlp=''
             for tag in mispevent['Tag']:
                 tagid=tag['id'].lower()
@@ -88,6 +90,10 @@ def transform(eventDict,eventID,options):
             entity.set_entity_confidence(options.confidence)
             if 'ShadowAttribute' in mispevent:
                 for attribute in mispevent['ShadowAttribute']:
+                    if 'Org' in mispevent:
+                        entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'],classification=entity.CLASSIFICATION_GOOD)
+                    if 'Orgc' in mispevent:
+                        entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'],classification=entity.CLASSIFICATION_GOOD)
                     category=attribute['category'].lower()
                     type=attribute['type'].lower()
                     value=attribute['value']
