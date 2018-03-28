@@ -69,9 +69,9 @@ def transform(eventDict,eventID,options):
             else:
                 uuid=str(eventID)
             if 'Org' in mispevent:
-                entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'],classification=entity.CLASSIFICATION_GOOD)
+                entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Org']['name'],classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
             if 'Orgc' in mispevent:
-                entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'],classification=entity.CLASSIFICATION_GOOD)
+                entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'],classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
             tlp=''
             for tag in mispevent['Tag']:
                 tagid=tag['id'].lower()
@@ -90,10 +90,10 @@ def transform(eventDict,eventID,options):
             entity.set_entity_confidence(options.confidence)
             if 'ShadowAttribute' in mispevent:
                 for attribute in mispevent['ShadowAttribute']:
-                    if 'Org' in mispevent:
-                        entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'],classification=entity.CLASSIFICATION_GOOD)
-                    if 'Orgc' in mispevent:
-                        entity.add_observable(entity.OBSERVABLE_ORGANIZATION,mispevent['Orgc']['name'],classification=entity.CLASSIFICATION_GOOD)
+                    if 'Org' in attribute:
+                        entity.add_observable(entity.OBSERVABLE_ORGANIZATION,attribute['Org']['name'],classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
+                    if 'Orgc' in attribute:
+                        entity.add_observable(entity.OBSERVABLE_ORGANIZATION,attribute['Orgc']['name'],classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
                     category=attribute['category'].lower()
                     type=attribute['type'].lower()
                     value=attribute['value']
