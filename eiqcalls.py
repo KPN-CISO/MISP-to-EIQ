@@ -91,8 +91,7 @@ class EIQApi:
 
   def __get_entity(self, uuid_string, token):
     headers = {}
-    headers['Host'] = 'eiq.ciso.lan'
-    headers['User-Agent'] = 'curl/7.52.1'
+    headers['User-Agent'] = 'eiqlib/1.0'
     headers['Authorization'] = 'Bearer %s' % (token['token'],)
     
     # make call
