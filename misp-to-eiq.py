@@ -405,6 +405,16 @@ def transform(eventDict,eventID,options):
                         entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                    if type=='ip-src':
+                        entity.add_observable(entity.OBSERVABLE_IPV4,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_IP_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_C2)
+                    if type=='ip-dst':
+                        entity.add_observable(entity.OBSERVABLE_IPV4,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_IP_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_C2)
                     if type=='snort':
                         entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
                     if type=='yara':
@@ -625,6 +635,16 @@ def transform(eventDict,eventID,options):
                             entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                        if type=='ip-src':
+                            entity.add_observable(entity.OBSERVABLE_IPV4,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_IP_WATCHLIST)
+                                entity.add_indicator_type(entity.INDICATOR_C2)
+                        if type=='ip-dst':
+                            entity.add_observable(entity.OBSERVABLE_IPV4,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_IP_WATCHLIST)
+                                entity.add_indicator_type(entity.INDICATOR_C2)
                         if type=='snort':
                             entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
                         if type=='yara':
