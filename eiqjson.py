@@ -50,6 +50,7 @@ class EIQEntity:
   OBSERVABLE_EMAIL = 'email'
 
   OBSERVABLE_ORGANIZATION = 'organization'
+  OBSERVABLE_MUTEX = 'mutex'
   OBSERVABLE_MD5 = 'hash-md5'
   OBSERVABLE_SHA1 = 'hash-sha1'
   OBSERVABLE_SHA256 = 'hash-sha256'

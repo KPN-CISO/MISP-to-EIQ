@@ -97,11 +97,19 @@ def transform(eventDict,eventID,options):
                     category=attribute['category'].lower()
                     type=attribute['type'].lower()
                     value=attribute['value']
+                    if category=='antivirus detection':
+                        if type=='url' or type=='link':
+                            entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
                     if category=='artifacts dropped':
                         if type.startswith('filename|'):
-                            filename=type[:9]
-                            type=type[10:]
+                            filename=value.split('|')[0]
+                            value=value.split('|')[1]
+                            type=type.split('|')[1]
                             entity.add_observable(entity.OBSERVABLE_FILE,filename,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                        if type=='mutex':
+                            entity.add_observable(entity.OBSERVABLE_MUTEX,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                         if type=='md5':
@@ -144,11 +152,15 @@ def transform(eventDict,eventID,options):
                             entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
                         if type=='yara':
                             entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
+                    if category=='attribution':
+                        if type=='comment':
+                            entity.set_entity_description(entity.get_entity_description()+"<pre>"+value+"</pre>")
                     if category=='payload delivery' or category=='payload installation':
                         if type.startswith('filename|'):
-                            filename=type[:9]
-                            type=type[10:]
-                            entity.add_observable(entity.OBSERVABLE_FILE,filename)
+                            filename=value.split('|')[0]
+                            value=value.split('|')[1]
+                            type=type.split('|')[1]
+                            entity.add_observable(entity.OBSERVABLE_FILE,filename,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                         if type=='domain' or type=='hostname':
@@ -156,6 +168,10 @@ def transform(eventDict,eventID,options):
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
                                 entity.add_indicator_type(entity.INDICATOR_C2)
+                        if type=='mutex':
+                            entity.add_observable(entity.OBSERVABLE_MUTEX,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                         if type=='md5':
                             entity.add_observable(entity.OBSERVABLE_MD5,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
@@ -203,8 +219,9 @@ def transform(eventDict,eventID,options):
                                 entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if category=='external analysis':
                         if type.startswith('filename|'):
-                            filename=type[:9]
-                            type=type[10:]
+                            filename=value.split('|')[0]
+                            value=value.split('|')[1]
+                            type=type.split('|')[1]
                             entity.add_observable(entity.OBSERVABLE_FILE,filename,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
@@ -216,6 +233,10 @@ def transform(eventDict,eventID,options):
                             entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                        if type=='mutex':
+                            entity.add_observable(entity.OBSERVABLE_MUTEX,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                         if type=='md5':
                             entity.add_observable(entity.OBSERVABLE_MD5,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
@@ -236,6 +257,12 @@ def transform(eventDict,eventID,options):
                             entity.add_observable(entity.OBSERVABLE_FILE,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                        if type=='comment':
+                            if attribute['comment']:
+                                comment=attribute['comment']
+                                entity.set_entity_description(entity.get_entity_description()+"<pre>Comment: "+comment+" - "+value+"</pre>")
+                            else:
+                                entity.set_entity_description(entity.get_entity_description()+"<pre>Comment: "+value+"</pre>")                                
                         if type=='snort':
                             entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
                         if type=='yara':
@@ -248,6 +275,11 @@ def transform(eventDict,eventID,options):
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
                                 entity.add_indicator_type(entity.INDICATOR_C2)
+                        if type.startswith('domain|ip'):
+                            domain=value.split('|')[0]
+                            ip=value.split('|')[1]
+                            entity.add_observable(entity.OBSERVABLE_DOMAIN,domain,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            entity.add_observable(entity.OBSERVABLE_IPV4,ip,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if type=='ip-src':
                             entity.add_observable(entity.OBSERVABLE_IPV4,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
@@ -310,11 +342,24 @@ def transform(eventDict,eventID,options):
                 category=attribute['category'].lower()
                 type=attribute['type'].lower()
                 value=attribute['value']
+                if category=='antivirus detection':
+                    if type=='url' or type=='link':
+                        entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
                 if category=='artifacts dropped':
                     if type.startswith('filename|'):
-                        filename=type[:9]
-                        type=type[10:]
+                        filename=value.split('|')[0]
+                        value=value.split('|')[1]
+                        type=type.split('|')[1]
                         entity.add_observable(entity.OBSERVABLE_FILE,filename,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                    if type.startswith('domain|ip'):
+                        domain=value.split('|')[0]
+                        ip=value.split('|')[1]
+                        entity.add_observable(entity.OBSERVABLE_DOMAIN,domain,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                        entity.add_observable(entity.OBSERVABLE_IPV4,ip,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                    if type=='mutex':
+                        entity.add_observable(entity.OBSERVABLE_MUTEX,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='md5':
@@ -357,18 +402,36 @@ def transform(eventDict,eventID,options):
                         entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
                     if type=='yara':
                         entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
+                if category=='attribution':
+                    if type=='comment':
+                        entity.set_entity_description(entity.get_entity_description()+"<pre>"+value+"</pre>")
                 if category=='payload delivery' or category=='payload installation':
                     if type.startswith('filename|'):
-                        filename=type[:9]
-                        type=type[10:]
-                        entity.add_observable(entity.OBSERVABLE_FILE,filename)
+                        filename=value.split('|')[0]
+                        value=value.split('|')[1]
+                        type=type.split('|')[1]
+                        entity.add_observable(entity.OBSERVABLE_FILE,filename,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                    if type.startswith('domain|ip'):
+                        domain=value.split('|')[0]
+                        ip=value.split('|')[1]
+                        entity.add_observable(entity.OBSERVABLE_DOMAIN,domain,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                        entity.add_observable(entity.OBSERVABLE_IPV4,ip,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_C2)
                     if type=='domain' or type=='hostname':
                         entity.add_observable(entity.OBSERVABLE_DOMAIN,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
                             entity.add_indicator_type(entity.INDICATOR_C2)
+                    if type=='vulnerability':
+                        entity.add_observable(entity.OBSERVABLE_CVE,value)
+                    if type=='mutex':
+                        entity.add_observable(entity.OBSERVABLE_MUTEX,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='md5':
                         entity.add_observable(entity.OBSERVABLE_MD5,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
@@ -426,11 +489,20 @@ def transform(eventDict,eventID,options):
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                 if category=='external analysis':
                     if type.startswith('filename|'):
-                        filename=type[:9]
-                        type=type[10:]
+                        filename=value.split('|')[0]
+                        value=value.split('|')[1]
+                        type=type.split('|')[1]
                         entity.add_observable(entity.OBSERVABLE_FILE,filename,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                    if type.startswith('domain|ip'):
+                        domain=value.split('|')[0]
+                        ip=value.split('|')[1]
+                        entity.add_observable(entity.OBSERVABLE_DOMAIN,domain,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                        entity.add_observable(entity.OBSERVABLE_IPV4,ip,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_C2)
                     if type=='link':
                         entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
                         if options.type=='i':
@@ -439,6 +511,10 @@ def transform(eventDict,eventID,options):
                         entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                    if type=='mutex':
+                        entity.add_observable(entity.OBSERVABLE_MUTEX,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if type=='md5':
                         entity.add_observable(entity.OBSERVABLE_MD5,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
@@ -459,6 +535,12 @@ def transform(eventDict,eventID,options):
                         entity.add_observable(entity.OBSERVABLE_FILE,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                    if type=='comment':
+                        if attribute['comment']:
+                            comment=attribute['comment']
+                            entity.set_entity_description(entity.get_entity_description()+"<pre>Comment: "+comment+" - "+value+"</pre>")
+                        else:
+                            entity.set_entity_description(entity.get_entity_description()+"<pre>Comment: "+value+"</pre>")                                
                     if type=='snort':
                         entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
                     if type=='yara':
@@ -466,6 +548,14 @@ def transform(eventDict,eventID,options):
                     if type=='text':
                         entity.set_entity_description("<pre>"+value+"</pre>")
                 if category=='network activity':
+                    if type.startswith('domain|ip'):
+                        domain=value.split('|')[0]
+                        ip=value.split('|')[1]
+                        entity.add_observable(entity.OBSERVABLE_DOMAIN,domain,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                        entity.add_observable(entity.OBSERVABLE_IPV4,ip,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                        if options.type=='i':
+                            entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
+                            entity.add_indicator_type(entity.INDICATOR_C2)
                     if type=='domain' or type=='hostname':
                         entity.add_observable(entity.OBSERVABLE_DOMAIN,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
@@ -540,11 +630,27 @@ def transform(eventDict,eventID,options):
                         else:
                             classification=''
                             confidence=''
+                    if category=='antivirus detection':
+                        if type=='url' or type=='link':
+                            entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
                     if category=='artifacts dropped':
                         if type.startswith('filename|'):
-                            filename=type[:9]
-                            type=type[10:]
+                            filename=value.split('|')[0]
+                            value=value.split('|')[1]
+                            type=type.split('|')[1]
                             entity.add_observable(entity.OBSERVABLE_FILE,filename,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                        if type.startswith('domain|ip'):
+                            domain=value.split('|')[0]
+                            ip=value.split('|')[1]
+                            entity.add_observable(entity.OBSERVABLE_DOMAIN,domain,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            entity.add_observable(entity.OBSERVABLE_IPV4,ip,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
+                                entity.add_indicator_type(entity.INDICATOR_C2)
+                        if type=='mutex':
+                            entity.add_observable(entity.OBSERVABLE_MUTEX,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                         if type=='md5':
@@ -587,18 +693,34 @@ def transform(eventDict,eventID,options):
                             entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
                         if type=='yara':
                             entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
+                    if category=='attribution':
+                        if type=='comment':
+                            entity.set_entity_description(entity.get_entity_description()+"<pre>"+value+"</pre>")
                     if category=='payload delivery' or category=='payload installation':
                         if type.startswith('filename|'):
-                            filename=type[:9]
-                            type=type[10:]
-                            entity.add_observable(entity.OBSERVABLE_FILE,filename)
+                            filename=value.split('|')[0]
+                            value=value.split('|')[1]
+                            type=type.split('|')[1]
+                            entity.add_observable(entity.OBSERVABLE_FILE,filename,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                        if type.startswith('domain|ip'):
+                            domain=value.split('|')[0]
+                            ip=value.split('|')[1]
+                            entity.add_observable(entity.OBSERVABLE_DOMAIN,domain,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            entity.add_observable(entity.OBSERVABLE_IPV4,ip,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
+                                entity.add_indicator_type(entity.INDICATOR_C2)
                         if type=='domain' or type=='hostname':
                             entity.add_observable(entity.OBSERVABLE_DOMAIN,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
                                 entity.add_indicator_type(entity.INDICATOR_C2)
+                        if type=='mutex':
+                            entity.add_observable(entity.OBSERVABLE_MUTEX,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                         if type=='md5':
                             entity.add_observable(entity.OBSERVABLE_MD5,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
@@ -656,11 +778,20 @@ def transform(eventDict,eventID,options):
                                 entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                     if category=='external analysis':
                         if type.startswith('filename|'):
-                            filename=type[:9]
-                            type=type[10:]
-                            entity.add_observable(entity.OBSERVABLE_FILE,filename)
+                            filename=value.split('|')[0]
+                            value=value.split('|')[1]
+                            type=type.split('|')[1]
+                            entity.add_observable(entity.OBSERVABLE_FILE,filename,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                        if type.startswith('domain|ip'):
+                            domain=value.split('|')[0]
+                            ip=value.split('|')[1]
+                            entity.add_observable(entity.OBSERVABLE_DOMAIN,domain,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            entity.add_observable(entity.OBSERVABLE_IPV4,ip,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
+                                entity.add_indicator_type(entity.INDICATOR_C2)
                         if type=='link':
                             entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
                             if options.type=='i':
@@ -669,6 +800,10 @@ def transform(eventDict,eventID,options):
                             entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
+                        if type=='mutex':
+                            entity.add_observable(entity.OBSERVABLE_MUTEX,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
                         if type=='md5':
                             entity.add_observable(entity.OBSERVABLE_MD5,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
@@ -689,6 +824,12 @@ def transform(eventDict,eventID,options):
                             entity.add_observable(entity.OBSERVABLE_FILE,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_MALWARE_ARTIFACTS)
+                        if type=='comment':
+                            if shadowAttribute['comment']:
+                                comment=shadowAttribute['comment']
+                                entity.set_entity_description(entity.get_entity_description()+"<pre>Comment: "+comment+" - "+value+"</pre>")
+                            else:
+                                entity.set_entity_description(entity.get_entity_description()+"<pre>Comment: "+value+"</pre>")                                
                         if type=='snort':
                             entity.add_test_mechanism(entity.OBSERVABLE_SNORT,value)
                         if type=='yara':
@@ -696,6 +837,14 @@ def transform(eventDict,eventID,options):
                         if type=='text':
                             entity.set_entity_description("<pre>"+value+"</pre>")
                     if category=='network activity':
+                        if type.startswith('domain|ip'):
+                            domain=value.split('|')[0]
+                            ip=value.split('|')[1]
+                            entity.add_observable(entity.OBSERVABLE_DOMAIN,domain,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            entity.add_observable(entity.OBSERVABLE_IPV4,ip,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
+                            if options.type=='i':
+                                entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
+                                entity.add_indicator_type(entity.INDICATOR_C2)
                         if type=='domain' or type=='hostname':
                             entity.add_observable(entity.OBSERVABLE_DOMAIN,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
@@ -721,6 +870,8 @@ def transform(eventDict,eventID,options):
                             entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
                     if category=='other':
                         analysis=value.lower()
+                        if type=='comment':
+                            entity.set_entity_description(entity.get_entity_description()+"<pre>"+value+"</pre>")
                         if 'banking' in analysis:
                             entity.add_ttp_type(entity.TTP_ADVANTAGE)
                             entity.add_ttp_type(entity.TTP_ADVANTAGE_ECONOMIC)
