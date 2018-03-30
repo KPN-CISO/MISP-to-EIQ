@@ -167,11 +167,13 @@ class EIQEntity:
   CONFIDENCE_LOW = 'low'
   CONFIDENCE_MEDIUM = 'medium'
   CONFIDENCE_HIGH = 'high'
+  CONFIDENCE_UNKNOWN = 'unknown'
 
   CONFIDENCE_TYPES = [
     CONFIDENCE_LOW,
     CONFIDENCE_MEDIUM,
-    CONFIDENCE_HIGH
+    CONFIDENCE_HIGH,
+    CONFIDENCE_UNKNOWN
   ]
 
   def __init__(self):
@@ -333,12 +335,12 @@ class EIQEntity:
     if not classification in self.CLASSIFICATION_TYPES:
       extract['classification'] = self.CLASSIFICATION_UNKNOWN
     else:
+      extract['classification'] = classification
       if classification == self.CLASSIFICATION_BAD:
         if not confidence in self.CONFIDENCE_TYPES:
-          extract['confidence'] = self.CONFIDENCE_LOW
+          extract['confidence'] = self.CONFIDENCE_UNKNOWN
         else:
           extract['confidence'] = confidence
-      extract['classification'] = classification
 
     self.__doc['data']['meta']['manual_extracts'].append(extract)
 

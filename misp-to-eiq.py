@@ -268,7 +268,7 @@ def transform(eventDict,eventID,options):
                         if type=='yara':
                             entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
                         if type=='text':
-                            entity.set_entity_description("<pre>"+value+"</pre>")
+                            entity.set_entity_description(entity.get_entity_description()+"<pre>"+value+"</pre>")
                     if category=='network activity':
                         if type=='domain' or type=='hostname':
                             entity.add_observable(entity.OBSERVABLE_DOMAIN,value,classification=entity.CLASSIFICATION_BAD,confidence=entity.CONFIDENCE_HIGH)
@@ -299,7 +299,7 @@ def transform(eventDict,eventID,options):
                         if type=='yara':
                             entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
                     if category=='other':
-                        entity.set_entity_description("<pre>"+value+"</pre>")
+                        entity.set_entity_description(entity.get_entity_description()+"<pre>"+value+"</pre>")
                         analysis=value.lower()
                         if 'banking' in analysis:
                             entity.add_ttp_type(entity.TTP_ADVANTAGE)
@@ -504,11 +504,11 @@ def transform(eventDict,eventID,options):
                             entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
                             entity.add_indicator_type(entity.INDICATOR_C2)
                     if type=='link':
-                        entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
+                        entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                     if type=='url':
-                        entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
+                        entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
                         if options.type=='i':
                             entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                     if type=='mutex':
@@ -546,7 +546,7 @@ def transform(eventDict,eventID,options):
                     if type=='yara':
                         entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
                     if type=='text':
-                        entity.set_entity_description("<pre>"+value+"</pre>")
+                        entity.set_entity_description(entity.get_entity_description()+"<pre>"+value+"</pre>")
                 if category=='network activity':
                     if type.startswith('domain|ip'):
                         domain=value.split('|')[0]
@@ -580,7 +580,7 @@ def transform(eventDict,eventID,options):
                     if type=='yara':
                         entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
                 if category=='other':
-                    entity.set_entity_description("<pre>"+value+"</pre>")
+                    entity.set_entity_description(entity.get_entity_description()+"<pre>"+value+"</pre>")
                     analysis=value.lower()
                     if 'banking' in analysis:
                         entity.add_ttp_type(entity.TTP_ADVANTAGE)
@@ -632,7 +632,7 @@ def transform(eventDict,eventID,options):
                             confidence=''
                     if category=='antivirus detection':
                         if type=='url' or type=='link':
-                            entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
+                            entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
                     if category=='artifacts dropped':
                         if type.startswith('filename|'):
                             filename=value.split('|')[0]
@@ -793,11 +793,11 @@ def transform(eventDict,eventID,options):
                                 entity.add_indicator_type(entity.INDICATOR_DOMAIN_WATCHLIST)
                                 entity.add_indicator_type(entity.INDICATOR_C2)
                         if type=='link':
-                            entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
+                            entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                         if type=='url':
-                            entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_LOW)
+                            entity.add_observable(entity.OBSERVABLE_URI,value,classification=entity.CLASSIFICATION_GOOD,confidence=entity.CONFIDENCE_HIGH)
                             if options.type=='i':
                                 entity.add_indicator_type(entity.INDICATOR_URL_WATCHLIST)
                         if type=='mutex':
@@ -835,7 +835,7 @@ def transform(eventDict,eventID,options):
                         if type=='yara':
                             entity.add_test_mechanism(entity.OBSERVABLE_YARA,value)
                         if type=='text':
-                            entity.set_entity_description("<pre>"+value+"</pre>")
+                            entity.set_entity_description(entity.get_entity_description()+"<pre>"+value+"</pre>")
                     if category=='network activity':
                         if type.startswith('domain|ip'):
                             domain=value.split('|')[0]
