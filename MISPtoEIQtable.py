@@ -6,6 +6,7 @@ MISPtoEIQtable={
                 'md5':{'eiqtype':types.OBSERVABLE_MD5,'classification':types.CLASSIFICATION_BAD,'confidence':types.CONFIDENCE_HIGH,'indicator_types':[types.INDICATOR_MALWARE_ARTIFACTS,types.INDICATOR_FILE_HASH_WATCHLIST]},
                 'sha1':{'eiqtype':types.OBSERVABLE_SHA1,'classification':types.CLASSIFICATION_BAD,'confidence':types.CONFIDENCE_HIGH,'indicator_types':[types.INDICATOR_MALWARE_ARTIFACTS,types.INDICATOR_FILE_HASH_WATCHLIST]},
                 'sha256':{'eiqtype':types.OBSERVABLE_SHA256,'classification':types.CLASSIFICATION_BAD,'confidence':types.CONFIDENCE_HIGH,'indicator_types':[types.INDICATOR_MALWARE_ARTIFACTS,types.INDICATOR_FILE_HASH_WATCHLIST]},
+                'sha512':{'eiqtype':types.OBSERVABLE_SHA512,'classification':types.CLASSIFICATION_BAD,'confidence':types.CONFIDENCE_HIGH,'indicator_types':[types.INDICATOR_MALWARE_ARTIFACTS,types.INDICATOR_FILE_HASH_WATCHLIST]},
                 'filename':{'eiqtype':types.OBSERVABLE_FILE,'classification':types.CLASSIFICATION_BAD,'confidence':types.CONFIDENCE_HIGH,'indicator_types':[types.INDICATOR_MALWARE_ARTIFACTS,types.INDICATOR_FILE_HASH_WATCHLIST]},
                 'pdb':{'eiqtype':types.OBSERVABLE_FILE,'classification':types.CLASSIFICATION_BAD,'confidence':types.CONFIDENCE_HIGH,'indicator_types':[types.INDICATOR_MALWARE_ARTIFACTS,types.INDICATOR_FILE_HASH_WATCHLIST]},
                 'ip-src':{'eiqtype':types.OBSERVABLE_IPV4,'classification':types.CLASSIFICATION_BAD,'confidence':types.CONFIDENCE_HIGH,'indicator_types':[types.INDICATOR_IP_WATCHLIST]},
