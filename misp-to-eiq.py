@@ -21,7 +21,7 @@ from config import settings
 
 def mapAtrribute(mispEvent,entity):
     '''
-    Attempt to parse all known observable types first. Treat all other attributes as 'comments' that go into
+    Attempt to parse all known observable types first. Treat most other attributes as 'comments' that go into
     the description field in EIQ, and set the TTP fields accordingly.
     '''
     if 'observable_types' in mispEvent:
@@ -51,6 +51,9 @@ def mapAtrribute(mispEvent,entity):
     return entity
 
 def eiqIngest(eiqJSON,options,uuid):
+    '''
+    Ingest the provided eiqJSON object into EIQ with the UUID provided (or create a new entity if not previously existing)
+    '''
     if not settings.EIQSSLVERIFY:
         if options.verbose:
             print("W) You have disabled SSL verification for EIQ, this is not recommended.")
@@ -81,6 +84,11 @@ def eiqIngest(eiqJSON,options,uuid):
             print("U) Not ingesting anything into EIQ because the -s/--simulate flag was set.")
 
 def transform(eventDict,eventID,options):
+    '''
+    Take the MISP Python Dictionary object, extract all attributes into a list, and pass that to the
+    mapAttribute function for parsing. The resulting eiqJSON blob is sent to eiqIngest() for ingestion
+    into EclecticIQ.
+    '''
     if options.verbose:
         print("U) Converting Event into EIQ JSON ...")
     if not options.confidence in ('Unknown','None','Low','Medium','High'):
@@ -177,6 +185,9 @@ def transform(eventDict,eventID,options):
         sys.exit(1)
 
 def download(eventID,options):
+    '''
+    Download the given MISP Event number from MISP
+    '''
     if options.verbose:
         print("U) Parsing MISP Event ID "+str(eventID)+" ...")
     try:
@@ -233,8 +244,12 @@ if __name__ == "__main__":
             print("E) Please specify a numeric EventID only.")
             sys.exit(1)
         eventDict=download(eventID,options)
-        eiqJSON,uuid=transform(eventDict,eventID,options)
-        if eiqJSON:
-            if options.verbose:
-                print(json.dumps(json.loads(eiqJSON),indent=2,sort_keys=True))
-            eiqIngest(eiqJSON,options,uuid)
+        if 'message' in eventDict:
+            print("E) An error occurred, MISP returned: "+eventDict['message'])
+            sys.exit(1)
+        else:
+            eiqJSON,uuid=transform(eventDict,eventID,options)
+            if eiqJSON:
+                if options.verbose:
+                    print(json.dumps(json.loads(eiqJSON),indent=2,sort_keys=True))
+                eiqIngest(eiqJSON,options,uuid)
