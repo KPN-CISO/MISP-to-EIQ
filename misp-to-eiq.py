@@ -237,4 +237,4 @@ if __name__ == "__main__":
         if eiqJSON:
             if options.verbose:
                 print(json.dumps(json.loads(eiqJSON),indent=2,sort_keys=True))
-            #eiqIngest(eiqJSON,options,uuid)
+            eiqIngest(eiqJSON,options,uuid)
