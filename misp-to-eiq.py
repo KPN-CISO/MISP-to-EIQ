@@ -80,7 +80,7 @@ def eiqIngest(eiqJSON,options,uuid):
         if options.verbose:
             print("U) Not ingesting anything into EIQ because the -s/--simulate flag was set.")
 
-def transform2(eventDict,eventID,options):
+def transform(eventDict,eventID,options):
     if options.verbose:
         print("U) Converting Event into EIQ JSON ...")
     if not options.confidence in ('Unknown','None','Low','Medium','High'):
@@ -233,7 +233,7 @@ if __name__ == "__main__":
             print("E) Please specify a numeric EventID only.")
             sys.exit(1)
         eventDict=download(eventID,options)
-        eiqJSON,uuid=transform2(eventDict,eventID,options)
+        eiqJSON,uuid=transform(eventDict,eventID,options)
         if eiqJSON:
             if options.verbose:
                 print(json.dumps(json.loads(eiqJSON),indent=2,sort_keys=True))
