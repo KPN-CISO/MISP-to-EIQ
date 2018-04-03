@@ -45,6 +45,7 @@ class EIQEntity:
   OBSERVABLE_CVE = 'cve'
 
   OBSERVABLE_IPV4 = 'ipv4'
+  OBSERVABLE_PORT = 'port'
   OBSERVABLE_URI = 'uri'
   OBSERVABLE_DOMAIN = 'domain'
   OBSERVABLE_EMAIL = 'email'
@@ -221,6 +222,11 @@ class EIQEntity:
       self.set_entity_impact(impact)
     
     self.set_entity_tlp(tlp)
+
+  def get_entity_type(self):
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    return self.__doc['data']['data']['type']
 
   def set_id(self, id_string):
     if not self.__is_entity_set:
