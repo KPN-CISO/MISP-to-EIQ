@@ -86,7 +86,7 @@ def eiqIngest(eiqJSON, options, uuid):
             raise
             print("E) An error occurred contacting the EIQ URL at " +
                   settings.EIQURL)
-        if response or 'errors' not in response:
+        if not response or ('errors' in response):
             if response:
                 for err in response['errors']:
                     print('[error %d] %s' % (err['status'], err['title']))
