@@ -259,6 +259,8 @@ TextToTTPtable = {
                 'fraud': [
                         types.TTP_FRAUD,
                         types.TTP_ADVANTAGE_ECONOMIC],
+                'mining': [
+                        types.TTP_ADVANTAGE_ECONOMIC],
                 'ransomware': [
                         types.TTP_DISRUPTION,
                         types.TTP_DESTRUCTION,

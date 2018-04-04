@@ -67,8 +67,8 @@ def eiqIngest(eiqJSON, options, uuid):
     '''
     if not settings.EIQSSLVERIFY:
         if options.verbose:
-            print("W) You have disabled SSL verification for EIQ, \
-                  this is not recommended.")
+            print("W) You have disabled SSL verification for EIQ, " +
+                  "this is not recommended.")
     eiqAPI = eiqcalls.EIQApi(insecure=not(settings.EIQSSLVERIFY))
     eiqAPI.set_host(settings.EIQURL)
     eiqAPI.set_credentials(settings.EIQUSER, settings.EIQPASS)
@@ -76,7 +76,7 @@ def eiqIngest(eiqJSON, options, uuid):
     if not options.simulate:
         try:
             if options.verbose:
-                print("U) Contacting "+settings.EIQURL+' ...')
+                print("U) Contacting " + settings.EIQURL + ' ...')
             if not options.duplicate:
                 response = eiqAPI.create_entity(eiqJSON, token=token,
                                                 update_identifier=uuid)
@@ -95,8 +95,8 @@ def eiqIngest(eiqJSON, options, uuid):
                 print('unable to get a response from host')
     else:
         if options.verbose:
-            print("U) Not ingesting anything into EIQ because the \
-                  -s/--simulate flag was set.")
+            print("U) Not ingesting anything into EIQ because the " +
+                  "-s/--simulate flag was set.")
 
 
 def transform(eventDict, eventID, options):
@@ -108,12 +108,12 @@ def transform(eventDict, eventID, options):
     if options.verbose:
         print("U) Converting Event into EIQ JSON ...")
     if options.confidence not in ('Unknown', 'None', 'Low', 'Medium', 'High'):
-        print("E) Not a valid confidence setting! Please choose 'Unknown', \
-               'None', 'Low', 'Medium' or 'High'.")
+        print("E) Not a valid confidence setting! Please choose 'Unknown', " +
+              "'None', 'Low', 'Medium' or 'High'.")
         sys.exit(1)
     if options.impact not in ('Unknown', 'None', 'Low', 'Medium', 'High'):
-        print("E) Not a valid impact setting! Please choose 'Unknown', \
-              'None', 'Low', 'Medium' or 'High'.")
+        print("E) Not a valid impact setting! Please choose 'Unknown', " +
+              "'None', 'Low', 'Medium' or 'High'.")
         sys.exit(1)
     try:
         if 'Event' in eventDict:
@@ -130,11 +130,12 @@ def transform(eventDict, eventID, options):
                 entity.set_entity(entity.ENTITY_TTP)
             entity.set_entity_source(settings.EIQSOURCE)
             if 'info' not in mispEvent:
-                print("E) MISP Entity ID has no title, which can lead to \
-                      problems ingesting, processing and finding data in EIQ.")
+                print("E) MISP Entity ID has no title, which can lead to " +
+                      "problems ingesting, processing and finding data in " +
+                      "EIQ.")
                 sys.exit(1)
             entity.set_entity_title(settings.TITLETAG +
-                                    " Event "+str(eventID)+" - " +
+                                    " Event " + str(eventID) + " - " +
                                     mispEvent['info'])
             if 'timestamp' in mispEvent:
                 timestamp = datetime.datetime.utcfromtimestamp(
@@ -225,12 +226,12 @@ def transform(eventDict, eventID, options):
             return mapAtrribute(attributelist, entity).get_as_json(), uuid
         else:
             if not options.verbose:
-                print("E) An empty result or other error was returned by \
-                      MISP. Enable verbosity to see the JSON result that \
-                      was returned.")
+                print("E) An empty result or other error was returned by " +
+                      "MISP. Enable verbosity to see the JSON result that " +
+                      "was returned.")
             else:
-                print("E) An empty JSON result or other error was returned \
-                      by MISP:")
+                print("E) An empty JSON result or other error was returned " +
+                      "by MISP:")
                 print(eventDict)
     except:
         raise
@@ -242,9 +243,9 @@ def download(eventID, options):
     Download the given MISP Event number from MISP
     '''
     if options.verbose:
-        print("U) Parsing MISP Event ID "+str(eventID)+" ...")
+        print("U) Parsing MISP Event ID " + str(eventID) + " ...")
     try:
-        eventurl = settings.MISPURL+"/events/"+str(eventID)
+        eventurl = settings.MISPURL+"/events/" + str(eventID)
         apiheaders = {
             "Accept": "application/json",
             "Content-type": "application/json",
@@ -252,11 +253,11 @@ def download(eventID, options):
         }
         if not settings.MISPSSLVERIFY:
             if options.verbose:
-                print("W) You have disabled SSL verification for MISP, \
-                      this is not recommended!")
+                print("W) You have disabled SSL verification for MISP, " +
+                      "this is not recommended!")
             urllib3.disable_warnings()
         if options.verbose:
-            print("U) Contacting "+eventurl+" ...")
+            print("U) Contacting " + eventurl + " ...")
         response = requests.get(
             eventurl,
             headers=apiheaders,
@@ -278,58 +279,58 @@ def download(eventID, options):
 
 
 if __name__ == "__main__":
-    cli = optparse.OptionParser(usage="usage: %prog [-v | -c | -i | -t |-s \
-                                       | -n| -d] <MISP Event ID>")
+    cli = optparse.OptionParser(usage="usage: %prog [-v | -c | -i | -t |-s' " +
+                                      "| -n| -d] <MISP Event ID>")
     cli.add_option('-v', '--verbose',
                    dest='verbose',
                    action='store_true',
                    default=False,
-                   help='[optional] Enable progress/error info (default: \
-                         disabled)')
+                   help='[optional] Enable progress/error info (default: ' +
+                        'disabled)')
     cli.add_option('-c', '--confidence',
                    dest='confidence',
                    default='Unknown',
-                   help='[optional] Set the confidence level for the \
-                         EclecticIQ entity (default: \'Unknown\')')
+                   help='[optional] Set the confidence level for the ' +
+                        'EclecticIQ entity (default: \'Unknown\')')
     cli.add_option('-i', '--impact',
                    dest='impact',
                    default='Unknown',
-                   help='[optional] Set the impact level for the EclecticIQ \
-                         entity (default: \'Unknown\')')
+                   help='[optional] Set the impact level for the EclecticIQ ' +
+                        'entity (default: \'Unknown\')')
     cli.add_option('-t', '--type',
                    dest='type',
                    default='i',
-                   help='[optional] Set the type of EclecticIQ entity you \
-                         wish to create: [i]ndicator (default), [s]ighting \
-                         or [t]TP. Not all entity types support all \
-                         observables/extracts!')
+                   help='[optional] Set the type of EclecticIQ entity you ' +
+                        'wish to create: [i]ndicator (default), [s]ighting ' +
+                        'or [t]TP. Not all entity types support all ' +
+                        'observables/extracts!')
     cli.add_option('-s', '--simulate',
                    dest='simulate',
                    action='store_true',
                    default=False,
-                   help='[optional] Do not actually ingest anything into EIQ \
-                         , just simulate everything. Mostly useful with the \
-                         -v/--verbose flag.')
+                   help='[optional] Do not actually ingest anything into ' +
+                        'EIQ, just simulate everything. Mostly useful with ' +
+                        'the -v/--verbose flag.')
     cli.add_option('-n', '--name',
                    dest='name',
                    default=settings.TITLETAG,
-                   help='[optional] Override the default TITLETAG name from \
-                         the configuration file (default: TITLETAG in \
-                         settings.py)')
+                   help='[optional] Override the default TITLETAG name from ' +
+                        'the configuration file (default: TITLETAG in' +
+                        'settings.py)')
     cli.add_option('-d', '--duplicate',
                    dest='duplicate',
                    action='store_true',
                    default=False,
-                   help='[optional] Do not update the existing EclecticIQ \
-                         entity, but create a new one (default: disabled)')
+                   help='[optional] Do not update the existing EclecticIQ ' +
+                        'entity, but create a new one (default: disabled)')
     (options, args) = cli.parse_args()
     if options.confidence not in ('Unknown', 'None', 'Low', 'Medium', 'High'):
-        print("E) Not a valid confidence setting! Please choose 'Unknown', \
-              'None', 'Low', 'Medium' or 'High'.")
+        print("E) Not a valid confidence setting! Please choose 'Unknown', " +
+              "'None', 'Low', 'Medium' or 'High'.")
         sys.exit(1)
     if options.impact not in ('Unknown', 'None', 'Low', 'Medium', 'High'):
-        print("E) Not a valid impact setting! Please choose 'Unknown', \
-              'None', 'Low', 'Medium' or 'High'.")
+        print("E) Not a valid impact setting! Please choose 'Unknown',' " +
+              "'None', 'Low', 'Medium' or 'High'.")
         sys.exit(1)
     if len(args) < 1:
         cli.print_help()
@@ -345,7 +346,8 @@ if __name__ == "__main__":
             sys.exit(1)
         eventDict = download(eventID, options)
         if 'message' in eventDict:
-            print("E) An error occurred, MISP returned: "+eventDict['message'])
+            print("E) An error occurred, MISP returned: " +
+                  eventDict['message'])
             sys.exit(1)
         else:
             eiqJSON, uuid = transform(eventDict, eventID, options)
