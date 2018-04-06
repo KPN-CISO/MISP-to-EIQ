@@ -279,8 +279,8 @@ def download(eventID, options):
 
 
 if __name__ == "__main__":
-    cli = optparse.OptionParser(usage="usage: %prog [-v | -c | -i | -t |-s' " +
-                                      "| -n| -d] <MISP Event ID>")
+    cli = optparse.OptionParser(usage="usage: %prog [-v | -c | -i | -t | -s " +
+                                      "| -n | -d] <MISP Event ID>")
     cli.add_option('-v', '--verbose',
                    dest='verbose',
                    action='store_true',
