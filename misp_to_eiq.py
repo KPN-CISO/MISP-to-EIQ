@@ -16,6 +16,7 @@ import datetime
 import eiqjson
 import eiqcalls
 import pprint
+import socket
 
 from MISPtoEIQtable import *
 from config import settings
@@ -39,7 +40,19 @@ def mapAtrribute(mispEvent, entity):
                         confidence = MISPtoEIQtable[type]['confidence']
                     else:
                         confidence = None
-                    entity.add_observable(MISPtoEIQtable[type]['eiqtype'],
+                    eiqtype = MISPtoEIQtable[type]['eiqtype']
+                    if eiqtype == types.OBSERVABLE_IPV4:
+                        try:
+                            socket.inet_aton(observable[type])
+                            eiqtype = types.OBSERVABLE_IPV4
+                        except:
+                            pass
+                        try:
+                            socket.inet_pton(socket.AF_INET6, observable[type])
+                            eiqtype = types.OBSERVABLE_IPV6
+                        except:
+                            pass
+                    entity.add_observable(eiqtype,
                                           observable[type],
                                           classification=classification,
                                           confidence=confidence)
