@@ -90,7 +90,7 @@ def eiqIngest(eiqJSON, options, uuid):
                   "this is not recommended.")
 
     eiqAPI = eiqcalls.EIQApi(insecure=not(settings.EIQSSLVERIFY))
-    url = settings.EIQHOST + settings.EIQVERSION
+    url = settings.EIQURL
     eiqAPI.set_host(url)
     eiqAPI.set_credentials(settings.EIQUSER, settings.EIQPASS)
     token = eiqAPI.do_auth()
