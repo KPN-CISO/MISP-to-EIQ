@@ -10,9 +10,10 @@ MISPURL='https://mymisp.mydomain.somewhere'
  
 MISPTOKEN='abcdef1234567890...'  
   
-5) [Required] Now enter the same config settings for EIQ. First, pick the right URL: add 'https://myeiq.localdomain/api' for EIQ <=2.0.x, and 'https://myeiq.localdomain/private' for EIQ 2.1.x+  
+5) [Required] Now enter the same config settings for EIQ. First, pick the right URL: 'https://myeiq.localdomain'. Secondly, pick '/api' as the EIQVERSION for EIQ <=2.0.x, and '/private' for EIQ 2.1.x+  
 
-EIQURL='https://myeiq.localdomain/private'  
+EIQHOST='https://myeiq.localdomain'  
+EIQVERSION='/private'  
 
 6) [Required] Enter the username and password:
 
