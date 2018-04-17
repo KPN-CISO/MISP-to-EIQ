@@ -61,7 +61,7 @@ class EIQApi:
         with urllib.request.urlopen(req, context=ssl_ctx) as f:
           ret = f.read().decode('utf-8')
       except urllib.error.HTTPError as e:
-        print('An HTTP error occured:', e)
+        raise
     else:
       with urllib.request.urlopen(req) as f:
         ret = f.read().decode('utf-8')

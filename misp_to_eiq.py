@@ -83,13 +83,14 @@ def eiqIngest(eiqJSON, options, uuid):
             print("W) You have disabled SSL verification for EIQ, " +
                   "this is not recommended.")
     eiqAPI = eiqcalls.EIQApi(insecure=not(settings.EIQSSLVERIFY))
-    eiqAPI.set_host(settings.EIQURL)
+    url = settings.EIQHOST + settings.EIQVERSION
+    eiqAPI.set_host(url)
     eiqAPI.set_credentials(settings.EIQUSER, settings.EIQPASS)
     token = eiqAPI.do_auth()
     if not options.simulate:
         try:
             if options.verbose:
-                print("U) Contacting " + settings.EIQURL + ' ...')
+                print("U) Contacting " + url + ' ...')
             if not options.duplicate:
                 response = eiqAPI.create_entity(eiqJSON, token=token,
                                                 update_identifier=uuid)
@@ -97,8 +98,6 @@ def eiqIngest(eiqJSON, options, uuid):
                 response = eiqAPI.create_entity(eiqJSON, token=token)
         except:
             raise
-            print("E) An error occurred contacting the EIQ URL at " +
-                  settings.EIQURL)
         if not response or ('errors' in response):
             if response:
                 for err in response['errors']:
