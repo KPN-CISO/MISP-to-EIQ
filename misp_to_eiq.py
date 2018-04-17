@@ -78,37 +78,39 @@ def eiqIngest(eiqJSON, options, uuid):
     Ingest the provided eiqJSON object into EIQ with the UUID provided
     (or create a new entity if not previously existing)
     '''
+    if options.simulate:
+        if options.verbose:
+            print("U) Not ingesting anything into EIQ because the " +
+                  "-s/--simulate flag was set.")
+        return
+
     if not settings.EIQSSLVERIFY:
         if options.verbose:
             print("W) You have disabled SSL verification for EIQ, " +
                   "this is not recommended.")
+
     eiqAPI = eiqcalls.EIQApi(insecure=not(settings.EIQSSLVERIFY))
-    url = settings.EIQHOST + settings.EIQVERSION
+    url = settings.EIQURL
     eiqAPI.set_host(url)
     eiqAPI.set_credentials(settings.EIQUSER, settings.EIQPASS)
     token = eiqAPI.do_auth()
-    if not options.simulate:
-        try:
-            if options.verbose:
-                print("U) Contacting " + url + ' ...')
-            if not options.duplicate:
-                response = eiqAPI.create_entity(eiqJSON, token=token,
-                                                update_identifier=uuid)
-            else:
-                response = eiqAPI.create_entity(eiqJSON, token=token)
-        except:
-            raise
-        if not response or ('errors' in response):
-            if response:
-                for err in response['errors']:
-                    print('[error %d] %s' % (err['status'], err['title']))
-                    print('\t%s' % (err['detail'], ))
-            else:
-                print('unable to get a response from host')
-    else:
+    try:
         if options.verbose:
-            print("U) Not ingesting anything into EIQ because the " +
-                  "-s/--simulate flag was set.")
+            print("U) Contacting " + url + ' ...')
+        if not options.duplicate:
+            response = eiqAPI.create_entity(eiqJSON, token=token,
+                                            update_identifier=uuid)
+        else:
+            response = eiqAPI.create_entity(eiqJSON, token=token)
+    except:
+        raise
+    if not response or ('errors' in response):
+        if response:
+            for err in response['errors']:
+                print('[error %d] %s' % (err['status'], err['title']))
+                print('\t%s' % (err['detail'], ))
+        else:
+            print('unable to get a response from host')
 
 
 def transform(eventDict, eventID, options):
