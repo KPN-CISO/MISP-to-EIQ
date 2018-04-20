@@ -44,6 +44,8 @@ def mapAtrribute(mispEvent, entity):
                     eiqtype = MISPtoEIQtable[type]['eiqtype']
                     if to_ids:
                         link_type = entity.OBSERVABLE_LINK_TEST_MECHANISM
+                        classification = entity.CLASSIFICATION_BAD
+                        confidence = entity.CONFIDENCE_HIGH
                     else:
                         link_type = entity.OBSERVABLE_LINK_OBSERVED
                     if eiqtype == types.OBSERVABLE_IPV4:
@@ -96,7 +98,7 @@ def eiqIngest(eiqJSON, options, uuid):
                   "this is not recommended.")
 
     eiqAPI = eiqcalls.EIQApi(insecure=not(settings.EIQSSLVERIFY))
-    url = settings.EIQURL
+    url = settings.EIQHOST + settings.EIQVERSION
     eiqAPI.set_host(url)
     eiqAPI.set_credentials(settings.EIQUSER, settings.EIQPASS)
     token = eiqAPI.do_auth()
