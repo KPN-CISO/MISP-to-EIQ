@@ -45,17 +45,12 @@ class EIQEntity:
   OBSERVABLE_CVE = 'cve'
 
   OBSERVABLE_IPV4 = 'ipv4'
-  OBSERVABLE_IPV6 = 'ipv6'
   OBSERVABLE_PORT = 'port'
   OBSERVABLE_URI = 'uri'
   OBSERVABLE_DOMAIN = 'domain'
   OBSERVABLE_EMAIL = 'email'
 
   OBSERVABLE_ORGANIZATION = 'organization'
-  OBSERVABLE_NATIONALITY = 'nationality'
-  OBSERVABLE_PERSON = 'person'
-  OBSERVABLE_TELEPHONE = 'telephone'
-  OBSERVABLE_MUTEX = 'mutex'
   OBSERVABLE_MD5 = 'hash-md5'
   OBSERVABLE_SHA1 = 'hash-sha1'
   OBSERVABLE_SHA256 = 'hash-sha256'
@@ -64,17 +59,30 @@ class EIQEntity:
   OBSERVABLE_DOMAIN = 'domain'
   OBSERVABLE_EMAIL = 'email'
   OBSERVABLE_EMAIL_SUBJECT = 'email-subject'
+  OBSERVABLE_MUTEX = 'mutex'
+  OBSERVABLE_TELEPHONE = 'telephone'
+  OBSERVABLE_NATIONALITY = 'nationality'
+  OBSERVABLE_PERSON = 'person'
   OBSERVABLE_SNORT = 'snort'
   OBSERVABLE_WINREGISTRY = 'winregistry'
   OBSERVABLE_YARA = 'yara'
 
   OBSERVABLE_TYPES = [
     OBSERVABLE_IPV4,
-    OBSERVABLE_IPV6,
     OBSERVABLE_URI,
     OBSERVABLE_DOMAIN,
     OBSERVABLE_EMAIL,
     OBSERVABLE_ORGANIZATION
+  ]
+
+  OBSERVABLE_LINK_OBSERVED = 'observed'
+  OBSERVABLE_LINK_TEST_MECHANISM = 'test-mechanism'
+  OBSERVABLE_LINK_SIGHTED = 'sighted'
+
+  OBSERVABLE_LINK_TYPES = [
+    OBSERVABLE_LINK_OBSERVED,
+    OBSERVABLE_LINK_TEST_MECHANISM,
+    OBSERVABLE_LINK_SIGHTED
   ]
 
   INDICATOR_MALICIOUS_EMAIL = 'Malicious E-mail'
@@ -173,13 +181,11 @@ class EIQEntity:
   CONFIDENCE_LOW = 'low'
   CONFIDENCE_MEDIUM = 'medium'
   CONFIDENCE_HIGH = 'high'
-  CONFIDENCE_UNKNOWN = 'unknown'
 
   CONFIDENCE_TYPES = [
     CONFIDENCE_LOW,
     CONFIDENCE_MEDIUM,
-    CONFIDENCE_HIGH,
-    CONFIDENCE_UNKNOWN
+    CONFIDENCE_HIGH
   ]
 
   def __init__(self):
@@ -227,11 +233,6 @@ class EIQEntity:
       self.set_entity_impact(impact)
     
     self.set_entity_tlp(tlp)
-
-  def get_entity_type(self):
-    if not self.__is_entity_set:
-      raise Exception('You need to set an entity first using set_entity(...)')
-    return self.__doc['data']['data']['type']
 
   def set_id(self, id_string):
     if not self.__is_entity_set:
@@ -329,29 +330,31 @@ class EIQEntity:
     if not ttp_type_object in self.__doc['data']['data']['intended_effects']:
       self.__doc['data']['data']['intended_effects'].append(ttp_type_object)
 
-  def add_observable(self, extract_type, value, classification = '', confidence = ''):
+  def add_observable(self, extract_type, value, classification = '', confidence = '', link_type = OBSERVABLE_LINK_OBSERVED):
 #    if not observable_type in self.OBSERVABLE_TYPES:
 #      raise Exception('Expecting observable_type from OBSERVABLE_TYPES')
     if not self.__is_entity_set:
       raise Exception('You need to set an entity first using set_entity(...)')
     if not 'manual_extracts' in self.__doc['data']['meta'].keys():
       self.__doc['data']['meta']['manual_extracts'] = []
+    if not link_type in self.OBSERVABLE_LINK_TYPES:
+      raise Exception('Observable link type %s is not a valid link type' % (link_type,))
 
     extract = {}
 
     extract['value'] = value
     extract['kind'] = extract_type
-    extract['link_type'] = 'observed'
+    extract['link_type'] = link_type
 
     if not classification in self.CLASSIFICATION_TYPES:
       extract['classification'] = self.CLASSIFICATION_UNKNOWN
     else:
-      extract['classification'] = classification
       if classification == self.CLASSIFICATION_BAD:
         if not confidence in self.CONFIDENCE_TYPES:
-          extract['confidence'] = self.CONFIDENCE_UNKNOWN
+          extract['confidence'] = self.CONFIDENCE_LOW
         else:
           extract['confidence'] = confidence
+      extract['classification'] = classification
 
     self.__doc['data']['meta']['manual_extracts'].append(extract)
 

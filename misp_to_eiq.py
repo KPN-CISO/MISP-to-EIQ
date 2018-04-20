@@ -40,22 +40,28 @@ def mapAtrribute(mispEvent, entity):
                         confidence = MISPtoEIQtable[type]['confidence']
                     else:
                         confidence = None
+                    name, to_ids = observable[type]
                     eiqtype = MISPtoEIQtable[type]['eiqtype']
+                    if to_ids:
+                        link_type = entity.OBSERVABLE_LINK_TEST_MECHANISM
+                    else:
+                        link_type = entity.OBSERVABLE_LINK_OBSERVED
                     if eiqtype == types.OBSERVABLE_IPV4:
                         try:
-                            socket.inet_aton(observable[type])
+                            socket.inet_aton(name)
                             eiqtype = types.OBSERVABLE_IPV4
                         except:
                             pass
                         try:
-                            socket.inet_pton(socket.AF_INET6, observable[type])
+                            socket.inet_pton(socket.AF_INET6, name)
                             eiqtype = types.OBSERVABLE_IPV6
                         except:
                             pass
                     entity.add_observable(eiqtype,
-                                          observable[type],
+                                          name,
                                           classification=classification,
-                                          confidence=confidence)
+                                          confidence=confidence,
+                                          link_type=link_type)
                     if 'indicator_types' in MISPtoEIQtable[type]:
                         for itype in MISPtoEIQtable[type]['indicator_types']:
                             entity.add_indicator_type(itype)
@@ -67,7 +73,7 @@ def mapAtrribute(mispEvent, entity):
                             observable[type] + "</pre>")
                         if entity.get_entity_type() == entity.ENTITY_TTP:
                             for key in TextToTTPtable:
-                                if key in observable[type]:
+                                if key in name:
                                     for ttp_type in TextToTTPtable[key]:
                                         entity.add_ttp_type(ttp_type)
     return entity
@@ -182,60 +188,72 @@ def transform(eventDict, eventID, options):
             entity.set_entity_confidence(options.confidence)
             if 'Org' or 'Orgc' in mispEvent:
                 attributelist['observable_types'].append(
-                    {'org': mispEvent['Org']['name']}
+                    {'org': (mispEvent['Org']['name'], False)}
                 )
             if 'Attribute' in mispEvent:
                 for attribute in mispEvent['Attribute']:
+                    if 'to_ids' in attribute:
+                        ids = True
+                    else:
+                        ids = False
                     type = attribute['type'].lower()
                     value = attribute['value']
                     if '|' in type:
                         type1, type2 = type.split('|')
                         value1, value2 = value.split('|')
                         attributelist['observable_types'].append(
-                            {type1: value1}
+                            {type1: (value1, ids)}
                         )
                         attributelist['observable_types'].append(
-                            {type2: value2}
+                            {type2: (value2, ids)}
                         )
                     else:
                         attributelist['observable_types'].append(
-                            {type: value}
+                            {type: (value, ids)}
                         )
             if 'ShadowAttribute' in mispEvent:
                 for attribute in mispEvent['ShadowAttribute']:
+                    if 'to_ids' in attribute:
+                        ids = True
+                    else:
+                        ids = False
                     type = attribute['type'].lower()
                     value = attribute['value']
                     if '|' in type:
                         type1, type2 = type.split('|')
                         value1, value2 = value.split('|')
                         attributelist['observable_types'].append(
-                            {type1: value1}
+                            {type1: (value1, ids)}
                         )
                         attributelist['observable_types'].append(
-                            {type2: value2}
+                            {type2: (value2, ids)}
                         )
                     else:
                         attributelist['observable_types'].append(
-                            {type: value}
+                            {type: (value, ids)}
                         )
             if 'Object' in mispEvent:
                 for attribute in mispEvent['Object']:
                     if 'Attribute' in attribute:
                         for attribute in attribute['Attribute']:
+                            if 'to_ids' in attribute:
+                                ids = True
+                            else:
+                                ids = False
                             type = attribute['type'].lower()
                             value = attribute['value']
                             if '|' in type:
                                 type1, type2 = type.split('|')
                                 value1, value2 = value.split('|')
                                 attributelist['observable_types'].append(
-                                    {type1: value1}
+                                    {type1: (value1, ids)}
                                 )
                                 attributelist['observable_types'].append(
-                                    {type2: value2}
+                                    {type2: (value2, ids)}
                                 )
                             else:
                                 attributelist['observable_types'].append(
-                                    {type: value}
+                                    {type: (value, ids)}
                                 )
             return mapAtrribute(attributelist, entity).get_as_json(), uuid
         else:
