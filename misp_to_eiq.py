@@ -154,9 +154,9 @@ def transform(eventDict, eventID, options):
                       "problems ingesting, processing and finding data in " +
                       "EIQ.")
                 sys.exit(1)
-            entity.set_entity_title(settings.TITLETAG +
-                                    " Event " + str(eventID) + " - " +
-                                    mispEvent['info'])
+            entity.set_entity_title(mispEvent['info'] + " - Event " +
+                                    str(eventID) + " - " +
+                                    settings.TITLETAG)
             if 'timestamp' in mispEvent:
                 timestamp = datetime.datetime.utcfromtimestamp(
                     int(mispEvent['timestamp'])).strftime("%Y-%m-%dT%H:%M:%SZ")
