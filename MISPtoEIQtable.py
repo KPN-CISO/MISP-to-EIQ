@@ -6,75 +6,75 @@ MISPtoEIQtable = {
                 'md5': {
                         'eiqtype': types.OBSERVABLE_MD5,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_MALWARE_ARTIFACTS,
                                 types.INDICATOR_FILE_HASH_WATCHLIST]},
                 'sha1': {
                         'eiqtype': types.OBSERVABLE_SHA1,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_MALWARE_ARTIFACTS,
                                 types.INDICATOR_FILE_HASH_WATCHLIST]},
                 'sha256': {
                         'eiqtype': types.OBSERVABLE_SHA256,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_MALWARE_ARTIFACTS,
                                 types.INDICATOR_FILE_HASH_WATCHLIST]},
                 'sha512': {
                         'eiqtype': types.OBSERVABLE_SHA512,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_MALWARE_ARTIFACTS,
                                 types.INDICATOR_FILE_HASH_WATCHLIST]},
                 'filename': {
                         'eiqtype': types.OBSERVABLE_FILE,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_MALWARE_ARTIFACTS,
                                 types.INDICATOR_FILE_HASH_WATCHLIST]},
                 'pdb': {
                         'eiqtype': types.OBSERVABLE_FILE,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_MALWARE_ARTIFACTS,
                                 types.INDICATOR_FILE_HASH_WATCHLIST]},
                 'ip-src': {
                         'eiqtype': types.OBSERVABLE_IPV4,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_IP_WATCHLIST]},
                 'ip-dst': {
                         'eiqtype': types.OBSERVABLE_IPV4,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_IP_WATCHLIST,
                                 types.INDICATOR_C2]},
                 'port': {
                         'eiqtype': types.OBSERVABLE_PORT,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_IP_WATCHLIST,
                                 types.INDICATOR_C2]},
                 'hostname': {
                         'eiqtype': types.OBSERVABLE_DOMAIN,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_DOMAIN_WATCHLIST]},
                 'domain': {
                         'eiqtype': types.OBSERVABLE_DOMAIN,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_DOMAIN_WATCHLIST]},
                 'email-src': {'eiqtype': types.OBSERVABLE_EMAIL,
@@ -120,13 +120,13 @@ MISPtoEIQtable = {
                 'uri': {
                         'eiqtype': types.OBSERVABLE_URI,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_URL_WATCHLIST]},
                 'url': {
                         'eiqtype': types.OBSERVABLE_URI,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_URL_WATCHLIST]},
                 'github-repository': {
@@ -138,7 +138,7 @@ MISPtoEIQtable = {
                 'regkey': {
                         'eiqtype': types.OBSERVABLE_WINREGISTRY,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_MALWARE_ARTIFACTS,
                                 types.INDICATOR_HOST_CHARACTERISTICS]},
@@ -159,17 +159,17 @@ MISPtoEIQtable = {
                 'mutex': {
                         'eiqtype': types.OBSERVABLE_MUTEX,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_MALWARE_ARTIFACTS]},
                 'threat-actor': {
                         'eiqtype': types.OBSERVABLE_ACTOR,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH},
+                        'confidence': types.CONFIDENCE_LOW},
                 'x509-fingerprint-sha1': {
                         'eiqtype': types.OBSERVABLE_SHA1,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH,
+                        'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
                                 types.INDICATOR_COMPROMISED_PKI_CERTIFICATE,
                                 types.INDICATOR_MALWARE_ARTIFACTS]},
@@ -188,35 +188,35 @@ MISPtoEIQtable = {
                 'iban': {
                         'eiqtype': types.OBSERVABLE_BANK_ACCOUNT,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH},
+                        'confidence': types.CONFIDENCE_LOW},
                 'bic': {
                         'eiqtype': types.OBSERVABLE_BANK_ACCOUNT,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH},
+                        'confidence': types.CONFIDENCE_LOW},
                 'bank-account-nr': {
                         'eiqtype': types.OBSERVABLE_BANK_ACCOUNT,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH},
+                        'confidence': types.CONFIDENCE_LOW},
                 'btc': {
                         'eiqtype': types.OBSERVABLE_BANK_ACCOUNT,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH},
+                        'confidence': types.CONFIDENCE_LOW},
                 'bin': {
                         'eiqtype': types.OBSERVABLE_BANK_ACCOUNT,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH},
+                        'confidence': types.CONFIDENCE_LOW},
                 'aba-rtn': {
                         'eiqtype': types.OBSERVABLE_BANK_ACCOUNT,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH},
+                        'confidence': types.CONFIDENCE_LOW},
                 'cc-number': {
                         'eiqtype': types.OBSERVABLE_CARD,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH},
+                        'confidence': types.CONFIDENCE_LOW},
                 'prtn': {
                         'eiqtype': types.OBSERVABLE_TELEPHONE,
                         'classification': types.CLASSIFICATION_BAD,
-                        'confidence': types.CONFIDENCE_HIGH},
+                        'confidence': types.CONFIDENCE_LOW},
                 'nationality': {
                         'eiqtype': types.OBSERVABLE_NATIONALITY,
                         'classification': types.CLASSIFICATION_UNKNOWN},
