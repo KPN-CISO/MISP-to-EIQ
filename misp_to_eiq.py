@@ -72,7 +72,7 @@ def mapAtrribute(mispEvent, entity):
                         entity.set_entity_description(
                             entity.get_entity_description() +
                             "<pre>" + type + ": " +
-                            observable[type] + "</pre>")
+                            name + "</pre>")
                         if entity.get_entity_type() == entity.ENTITY_TTP:
                             for key in TextToTTPtable:
                                 if key in name:
