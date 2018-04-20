@@ -41,7 +41,6 @@ def mapAtrribute(mispEvent, entity):
                     else:
                         confidence = None
                     name, to_ids = observable[type]
-                    print(name, to_ids)
                     eiqtype = MISPtoEIQtable[type]['eiqtype']
                     if to_ids:
                         link_type = entity.OBSERVABLE_LINK_TEST_MECHANISM
