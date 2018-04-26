@@ -168,20 +168,22 @@ def transform(eventDict, eventID, options):
             else:
                 uuid = str(eventID)
             tlp = ''
-            for tag in mispEvent['Tag']:
-                tagname = tag['name'].lower()
-                if tagname.startswith('tlp:') and not tlp:
-                    tlp = tagname[4:]
-                if tagname.startswith('misp-galaxy:threat-actor='):
-                    attributelist['observable_types'].append(
-                        {
-                            'threat-actor':
-                                re.sub('[\'\"\`]', '', tag['name'][26:])
-                        })
-                if tagname.startswith('admiralty-scale:source-reliability='):
-                    entity.set_entity_reliability(
-                        re.sub('[\'\"\`]', '', tag['name'][36:].upper())
-                    )
+            if 'tag' in mispEvent:
+                for tag in mispEvent['Tag']:
+                    tagname = tag['name'].lower()
+                    if tagname.startswith('tlp:') and not tlp:
+                        tlp = tagname[4:]
+                    if tagname.startswith('misp-galaxy:threat-actor='):
+                        attributelist['observable_types'].append(
+                            {
+                                'threat-actor':
+                                    re.sub('[\'\"\`]', '', tag['name'][26:])
+                            })
+                    if tagname.startswith(
+                        'admiralty-scale:source-reliability='):
+                        entity.set_entity_reliability(
+                            re.sub('[\'\"\`]', '', tag['name'][36:].upper())
+                        )
             if not tlp:
                 tlp = 'amber'
             entity.set_entity_tlp(tlp)
