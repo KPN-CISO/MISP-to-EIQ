@@ -168,7 +168,7 @@ def transform(eventDict, eventID, options):
             else:
                 uuid = str(eventID)
             tlp = ''
-            if 'tag' in mispEvent:
+            if 'Tag' in mispEvent:
                 for tag in mispEvent['Tag']:
                     tagname = tag['name'].lower()
                     if tagname.startswith('tlp:') and not tlp:
