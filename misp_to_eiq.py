@@ -177,7 +177,8 @@ def transform(eventDict, eventID, options):
                         attributelist['observable_types'].append(
                             {
                                 'threat-actor':
-                                    re.sub('[\'\"\`]', '', tag['name'][26:])
+                                    (re.sub('[\'\"\`]', '', tag['name'][26:]),
+                                     False)
                             })
                     if tagname.startswith(
                         'admiralty-scale:source-reliability='):
