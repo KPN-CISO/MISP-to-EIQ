@@ -90,7 +90,7 @@ def eiqIngest(eiqJSON, options, uuid):
         if options.verbose:
             print("U) Not ingesting anything into EIQ because the " +
                   "-s/--simulate flag was set.")
-        return
+        return False
 
     if not settings.EIQSSLVERIFY:
         if options.verbose:
@@ -119,6 +119,9 @@ def eiqIngest(eiqJSON, options, uuid):
                 print('\t%s' % (err['detail'], ))
         else:
             print('unable to get a response from host')
+        return False
+    else:
+        return True
 
 
 def transform(eventDict, eventID, options):
