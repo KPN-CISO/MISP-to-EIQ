@@ -42,7 +42,9 @@ def mapAtrribute(mispEvent, entity):
                         confidence = None
                     name, to_ids = observable[type]
                     eiqtype = MISPtoEIQtable[type]['eiqtype']
-                    if to_ids:
+                    if to_ids or\
+                       eiqtype == entity.OBSERVABLE_SNORT or\
+                       eiqtype == entity.OBSERVABLE_YARA:
                         link_type = entity.OBSERVABLE_LINK_TEST_MECHANISM
                         classification = entity.CLASSIFICATION_BAD
                         confidence = entity.CONFIDENCE_HIGH
@@ -52,12 +54,12 @@ def mapAtrribute(mispEvent, entity):
                         try:
                             socket.inet_aton(name)
                             eiqtype = types.OBSERVABLE_IPV4
-                        except:
+                        except socket.error:
                             pass
                         try:
                             socket.inet_pton(socket.AF_INET6, name)
                             eiqtype = types.OBSERVABLE_IPV6
-                        except:
+                        except socket.error:
                             pass
                     entity.add_observable(eiqtype,
                                           name,
@@ -180,13 +182,13 @@ def transform(eventDict, eventID, options):
                         attributelist['observable_types'].append(
                             {
                                 'threat-actor':
-                                    (re.sub('[\'\"\`]', '', tag['name'][26:]),
+                                    (re.sub('[\'\"`]', '', tag['name'][26:]),
                                      False)
                             })
                     if tagname.startswith(
-                        'admiralty-scale:source-reliability='):
+                       'admiralty-scale:source-reliability='):
                         entity.set_entity_reliability(
-                            re.sub('[\'\"\`]', '', tag['name'][36:].upper())
+                            re.sub('[\'\"`]', '', tag['name'][36:].upper())
                         )
             if not tlp:
                 tlp = 'amber'
@@ -275,7 +277,6 @@ def transform(eventDict, eventID, options):
                 print(eventDict)
     except:
         raise
-        sys.exit(1)
 
 
 def download(eventID, options):
