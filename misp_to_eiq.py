@@ -71,6 +71,7 @@ def mapAtrribute(mispEvent, entity):
                             entity.add_indicator_type(itype)
                 else:
                     if type in OtherTypes:
+                        name, to_ids = observable[type]
                         entity.set_entity_description(
                             entity.get_entity_description() +
                             "<pre>" + type + ": " +

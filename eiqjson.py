@@ -45,6 +45,7 @@ class EIQEntity:
   OBSERVABLE_CVE = 'cve'
 
   OBSERVABLE_IPV4 = 'ipv4'
+  OBSERVABLE_IPV6 = 'ipv6'
   OBSERVABLE_PORT = 'port'
   OBSERVABLE_URI = 'uri'
   OBSERVABLE_DOMAIN = 'domain'
