@@ -191,7 +191,7 @@ def transform(eventDict, eventID, options):
                         entity.set_entity_reliability(
                             re.sub('[\'\"`]', '', tag['name'][36:].upper())
                         )
-            if not tlp:
+            if tlp not in ['white', 'green', 'amber', 'red']:
                 tlp = 'amber'
             entity.set_entity_tlp(tlp)
             if options.type == 'i' or options.type == 's':
