@@ -137,6 +137,17 @@ class EIQApi:
       else:
         return (latest_version, uuid_string)
 
+  def get_entity_tags(self, u, t):
+    return self.__get_entity_tags(u, t)
+
+  def __get_entity_tags(self, uuid_string, token):
+    entity = self.__get_entity(uuid_string, token)
+    taxonomies = []
+    if entity and 'data' in entity.keys() and 'meta' in entity['data'].keys() and 'taxonomy' in entity['data']['meta'].keys():
+      for taxonomy in entity['data']['meta']['taxonomy']:
+        taxonomies.append(taxonomy)
+    return taxonomies
+
   """ create_entity(entity_json)
         calls to /entities/ endpoint
         entity_json: [str] currently formatted request body in EIQ-json for new entity
@@ -155,8 +166,10 @@ class EIQApi:
       # expensive way to update the id, but it keeps the usage of create_entiy simple
       if isinstance(entity_json, bytes):
         entity_json = entity_json.decode('utf-8')
+      tags = self.__get_entity_tags(prev_id)
       entity_json = json.loads(entity_json)
       entity_json['data']['id'] = this_id
+      entity_json['data']['meta']['taxonomy'] = tags
       entity_type = entity_json['data']['data']['type']
       entity_json = json.dumps(entity_json)
       
