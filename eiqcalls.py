@@ -166,7 +166,10 @@ class EIQApi:
       # expensive way to update the id, but it keeps the usage of create_entiy simple
       if isinstance(entity_json, bytes):
         entity_json = entity_json.decode('utf-8')
-      tags = self.__get_entity_tags(prev_id)
+      if prev_id:
+        tags = self.__get_entity_tags(prev_id, token)
+      else:
+        tags = []
       entity_json = json.loads(entity_json)
       entity_json['data']['id'] = this_id
       entity_json['data']['meta']['taxonomy'] = tags
