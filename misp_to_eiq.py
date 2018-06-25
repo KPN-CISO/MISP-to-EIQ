@@ -22,7 +22,7 @@ from MISPtoEIQtable import *
 from config import settings
 
 
-def mapAtrribute(mispEvent, entity):
+def mapAttribute(mispEvent, entity):
     '''
     Attempt to parse all known observable types first. Treat most other
     attributes as 'comments' that go into the description field in EIQ,
@@ -145,6 +145,16 @@ def transform(eventDict, eventID, options):
         sys.exit(1)
     try:
         if 'Event' in eventDict:
+            '''
+            Create a list of entities to ingest into EclecticIQ. For a
+            reasonably complete MISP Event, this means a TTP entity
+            will be created, with an Actor entity and at least one
+            Indicator entity linked to it.
+            '''
+            entityList = []
+            '''
+            First, create the central TTP Entity and add it to the list.
+            '''
             mispEvent = eventDict['Event']
             attributelist = {'observable_types': [],
                              'indicator_types': [],
@@ -162,7 +172,9 @@ def transform(eventDict, eventID, options):
                       "problems ingesting, processing and finding data in " +
                       "EIQ.")
                 sys.exit(1)
-            entity.set_entity_title(mispEvent['info'] + " - Event " +
+            else:
+                info = mispEvent['info']
+            entity.set_entity_title(info + " - Event " +
                                     str(eventID) + " - " +
                                     settings.TITLETAG)
             if 'timestamp' in mispEvent:
@@ -174,35 +186,71 @@ def transform(eventDict, eventID, options):
             else:
                 uuid = str(eventID)
             tlp = ''
+            actor = None
+            reliability = 'F'
             if 'Tag' in mispEvent:
                 for tag in mispEvent['Tag']:
                     tagname = tag['name'].lower()
                     if tagname.startswith('tlp:') and not tlp:
                         tlp = tagname[4:]
                     if tagname.startswith('misp-galaxy:threat-actor='):
+                        actor = re.sub('[\'\"`]', '', tag['name'][26:])
                         attributelist['observable_types'].append(
-                            {
-                                'threat-actor':
-                                    (re.sub('[\'\"`]', '', tag['name'][26:]),
-                                     False)
-                            })
+                            {'threat-actor': (actor, False)})
                     if tagname.startswith(
                        'admiralty-scale:source-reliability='):
-                        entity.set_entity_reliability(
-                            re.sub('[\'\"`]', '', tag['name'][36:].upper())
-                        )
+                        reliability = re.sub('[\'\"`]', '',
+                                             tag['name'][36:].upper())
             if tlp not in ['white', 'green', 'amber', 'red']:
                 tlp = 'amber'
             entity.set_entity_tlp(tlp)
-            if options.type == 'i' or options.type == 's':
-                entity.set_entity_impact(options.impact)
+            entity.set_entity_reliability(reliability)
             entity.set_entity_confidence(options.confidence)
             if 'Org' or 'Orgc' in mispEvent:
+                org = mispEvent['Org']['name']
                 attributelist['observable_types'].append(
-                    {'org': (mispEvent['Org']['name'], False)}
+                    {'org': (org, False)}
                 )
-            if 'Attribute' in mispEvent:
-                for attribute in mispEvent['Attribute']:
+            entityList.append((mapAttribute(attributelist,
+                               entity).get_as_json(), uuid))
+            '''
+            Now take the built-in attributes and create an Indicator entity
+            for those MISP Attributes
+            '''
+            if 'Attribute' or 'ShadowAttribute' in mispEvent:
+                attributelist = {'observable_types': [],
+                                 'indicator_types': [],
+                                 'ttp_types': []}
+                entity = eiqjson.EIQEntity()
+                entity.set_entity(entity.ENTITY_INDICATOR)
+                if options.type == 'i' or options.type == 's':
+                    entity.set_entity_impact(options.impact)
+                entity.set_entity_source(settings.EIQSOURCE)
+                entity.set_entity_observed_time(timestamp)
+                uuid = "Attributes for "
+                uuid += "Event " + str(eventID)
+                uuid += " - " + settings.TITLETAG
+                entity.set_entity_tlp(tlp)
+                if actor:
+                    attributelist['observable_types'].append(
+                        {'threat-actor': (actor, False)})
+                entity.set_entity_reliability(reliability)
+                if options.type == 'i' or options.type == 's':
+                    entity.set_entity_impact(options.impact)
+                entity.set_entity_confidence(options.confidence)
+                attributelist['observable_types'].append(
+                        {'org': (org, False)}
+                )
+                typeslist = set()
+                attributeslist = []
+                if 'Attribute' in mispEvent:
+                    attributeslist += mispEvent['Attribute']
+                if 'ShadowAttribute' in mispEvent:
+                    attributeslist += mispEvent['ShadowAttribute']
+                for attribute in attributelist:
+                    if 'Attribute' in attribute:
+                        attributes += attribute['attribute']
+                for attribute in attributeslist:
                     if 'to_ids' in attribute:
                         to_ids = attribute['to_ids']
                     else:
@@ -211,6 +259,8 @@ def transform(eventDict, eventID, options):
                     value = attribute['value']
                     if '|' in type:
                         type1, type2 = type.split('|')
+                        typeslist.add(type1)
+                        typeslist.add(type2)
                         value1, value2 = value.split('|')
                         attributelist['observable_types'].append(
                             {type1: (value1, to_ids)}
@@ -219,32 +269,52 @@ def transform(eventDict, eventID, options):
                             {type2: (value2, to_ids)}
                         )
                     else:
+                        typeslist.add(type)
                         attributelist['observable_types'].append(
                             {type: (value, to_ids)}
                         )
-            if 'ShadowAttribute' in mispEvent:
-                for attribute in mispEvent['ShadowAttribute']:
-                    if 'to_ids' in attribute:
-                        to_ids = attribute['to_ids']
-                    else:
-                        to_ids = False
-                    type = attribute['type'].lower()
-                    value = attribute['value']
-                    if '|' in type:
-                        type1, type2 = type.split('|')
-                        value1, value2 = value.split('|')
-                        attributelist['observable_types'].append(
-                            {type1: (value1, to_ids)}
-                        )
-                        attributelist['observable_types'].append(
-                            {type2: (value2, to_ids)}
-                        )
-                    else:
-                        attributelist['observable_types'].append(
-                            {type: (value, to_ids)}
-                        )
+                types = ", ".join(typeslist)
+                entity.set_entity_title(types + " for " +
+                                        "Event " + str(eventID) + 
+                                        " - " + settings.TITLETAG)
+                entityList.append((mapAttribute(attributelist,
+                                                entity).get_as_json(), uuid))
+            '''
+            Now take all the MISP Objects and add them to the list of
+            entities for EIQ
+            '''
             if 'Object' in mispEvent:
                 for attribute in mispEvent['Object']:
+                    '''
+                    Create an EIQ Entity for set of Attributes belonging
+                    to a MISP Object
+                    '''
+                    attributelist = {'observable_types': [],
+                                     'indicator_types': [],
+                                     'ttp_types': []}
+                    entity = eiqjson.EIQEntity()
+                    entity.set_entity(entity.ENTITY_INDICATOR)
+                    if options.type == 'i' or options.type == 's':
+                        entity.set_entity_impact(options.impact)
+                    entity.set_entity_source(settings.EIQSOURCE)
+                    if 'description' not in attribute:
+                        print("E) MISP Entity ID has no title, which can " +
+                              "lead to problems ingesting, processing and " +
+                              "finding data in EclecticIQ.")
+                        sys.exit(1)
+                    entity.set_entity_observed_time(timestamp)
+                    uuid = attribute['uuid']
+                    entity.set_entity_tlp(tlp)
+                    attributelist['observable_types'].append(
+                        {'threat-actor': (actor, False)})
+                    entity.set_entity_reliability(reliability)
+                    if options.type == 'i' or options.type == 's':
+                        entity.set_entity_impact(options.impact)
+                    entity.set_entity_confidence(options.confidence)
+                    attributelist['observable_types'].append(
+                            {'org': (org, False)}
+                    )
+                    typeslist = set()
                     if 'Attribute' in attribute:
                         for attribute in attribute['Attribute']:
                             if 'to_ids' in attribute:
@@ -255,6 +325,8 @@ def transform(eventDict, eventID, options):
                             value = attribute['value']
                             if '|' in type:
                                 type1, type2 = type.split('|')
+                                typeslist.add(type1)
+                                typeslist.add(type2)
                                 value1, value2 = value.split('|')
                                 attributelist['observable_types'].append(
                                     {type1: (value1, to_ids)}
@@ -263,11 +335,19 @@ def transform(eventDict, eventID, options):
                                     {type2: (value2, to_ids)}
                                 )
                             else:
+                                typeslist.add(type)
                                 attributelist['observable_types'].append(
                                     {type: (value, to_ids)}
                                 )
-            return mapAtrribute(attributelist, entity).get_as_json(), uuid
-        else:
+                    types = ", ".join(typeslist)
+                    entity.set_entity_title(types + " for " +
+                                            "Event " +
+                                            str(eventID) + " - " +
+                                            settings.TITLETAG)
+                    entityList.append((mapAttribute(attributelist,
+                                                    entity).get_as_json(),
+                                       uuid))
+            return entityList
             if not options.verbose:
                 print("E) An empty result or other error was returned by " +
                       "MISP. Enable verbosity to see the JSON result that " +
@@ -341,11 +421,13 @@ if __name__ == "__main__":
                         'entity (default: \'Unknown\')')
     cli.add_option('-t', '--type',
                    dest='type',
-                   default='i',
+                   default='t',
                    help='[optional] Set the type of EclecticIQ entity you ' +
-                        'wish to create: [i]ndicator (default), [s]ighting ' +
-                        'or [t]TP. Not all entity types support all ' +
-                        'observables/extracts!')
+                        'wish to create: [t]tp (default), [s]ighting ' +
+                        'or [i]ndicator. Not all entity types support all ' +
+                        'observables/extracts! Nested objects in the MISP ' +
+                        'Event will be created as indicators and linked to ' +
+                        'the TTP.')
     cli.add_option('-s', '--simulate',
                    dest='simulate',
                    action='store_true',
@@ -392,10 +474,12 @@ if __name__ == "__main__":
                   eventDict['message'])
             sys.exit(1)
         else:
-            eiqJSON, uuid = transform(eventDict, eventID, options)
-            if eiqJSON:
-                if options.verbose:
-                    print(json.dumps(json.loads(eiqJSON),
-                          indent=2,
-                          sort_keys=True))
-                eiqIngest(eiqJSON, options, uuid)
+            result = transform(eventDict, eventID, options)
+            if result:
+                for JSONentity in result:
+                    eiqJSON, uuid = JSONentity
+                    if options.verbose:
+                        print(json.dumps(json.loads(eiqJSON),
+                                         indent=2,
+                                         sort_keys=True))
+                    eiqIngest(eiqJSON, options, uuid)
