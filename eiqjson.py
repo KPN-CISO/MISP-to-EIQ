@@ -39,7 +39,7 @@ class EIQEntity:
   ACTOR_TYPE_HACKER_GRAY_HAT = 'Hacker - Gray hat'
   ACTOR_TYPE_HACKER_BLACK_HAT = 'Hacker - Black hat'
   ACTOR_TYPE_HACKTIVIST = 'Hacktivist'
-  ACTOR_TYPE_STATE_ACTOR = 'Statet Actor / Agency'
+  ACTOR_TYPE_STATE_ACTOR = 'State Actor / Agency'
   ACTOR_TYPE_ECRIME_CRED_THEFT_BOTNET_OPS = 'eCrime Actor - Credential Theft Botnet Operator'
   ACTOR_TYPE_ECRIME_CRED_THEFT_BOTNET_SERVICE = 'eCrime Actor - Credential Theft Botnet Service'
   ACTOR_TYPE_ECRIME_MALWARE_DEV = 'eCrime Actor - Malware Developer'
@@ -483,16 +483,25 @@ class EIQEntity:
 class EIQRelation:
   RELATION_REGULAR = 'REGULAR'
   RELATION_STIX_UPDATE = 'stix_update_of'
+  RELATION_INDICATOR_TTP = 'indicated_ttps'
+  RELATION_ACTOR_TTP = 'observed_ttps'
   RELATION_TYPES = [
     RELATION_REGULAR,
-    RELATION_STIX_UPDATE
+    RELATION_STIX_UPDATE,
+    RELATION_INDICATOR_TTP,
+    RELATION_ACTOR_TTP
   ]
+
+  LABEL_ASSOCIATED_CAMPAIGN = 'Is associated campaign to'
+  LABEL_INDICATES_MALWARE = 'Indicates malware'
+  LABEL_UNKNOWN = 'I don\'t know'
+  LABEL_ANYTHING = 'Could be anything'
   
   def __init__(self):
     self.__is_relation_set = False
     self.__doc = {}
 
-  def set_relation(self, relation_subtype, source_id = None, source_type = None, target_id = None, target_type = None, ingest_source = None):
+  def set_relation(self, relation_subtype, source_id = None, source_type = None, target_id = None, target_type = None, ingest_source = None, label = None):
     if not relation_subtype in self.RELATION_TYPES:
       raise Exception('Expecting relation_subtype from RELATION_TYPES')
 
@@ -502,8 +511,16 @@ class EIQRelation:
     relation = {}
     # set type / subtype
     relation['type'] = 'relation'
-    if not relation_subtype == self.RELATION_REGULAR:
+
+    # Special cases for specific relationship types
+    if relation_subtype == self.RELATION_STIX_UPDATE:
       relation['subtype'] = relation_subtype
+    elif relation_subtype == self.RELATION_INDICATOR_TTP or relation_subtype == self.RELATION_ACTOR_TTP:
+      relation['key'] = relation_subtype
+      if label:
+        relation['relationship'] = label
+      else:
+        relation['relationship'] = self.LABEL_UNKNOWN
 
     # set source
     if source_id and source_type:

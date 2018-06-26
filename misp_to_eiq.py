@@ -84,49 +84,6 @@ def mapAttribute(mispEvent, entity):
     return entity
 
 
-def eiqIngest(eiqJSON, options, uuid):
-    '''
-    Ingest the provided eiqJSON object into EIQ with the UUID provided
-    (or create a new entity if not previously existing)
-    '''
-    if options.simulate:
-        if options.verbose:
-            print("U) Not ingesting anything into EIQ because the " +
-                  "-s/--simulate flag was set.")
-        return False
-
-    if not settings.EIQSSLVERIFY:
-        if options.verbose:
-            print("W) You have disabled SSL verification for EIQ, " +
-                  "this is not recommended.")
-
-    eiqAPI = eiqcalls.EIQApi(insecure=not(settings.EIQSSLVERIFY))
-    url = settings.EIQHOST + settings.EIQVERSION
-    eiqAPI.set_host(url)
-    eiqAPI.set_credentials(settings.EIQUSER, settings.EIQPASS)
-    token = eiqAPI.do_auth()
-    try:
-        if options.verbose:
-            print("U) Contacting " + url + ' ...')
-        if not options.duplicate:
-            response = eiqAPI.create_entity(eiqJSON, token=token,
-                                            update_identifier=uuid)
-        else:
-            response = eiqAPI.create_entity(eiqJSON, token=token)
-    except:
-        raise
-    if not response or ('errors' in response):
-        if response:
-            for err in response['errors']:
-                print('[error %d] %s' % (err['status'], err['title']))
-                print('\t%s' % (err['detail'], ))
-        else:
-            print('unable to get a response from host')
-        return False
-    else:
-        return True
-
-
 def transform(eventDict, eventID, options):
     '''
     Take the MISP Python Dictionary object, extract all attributes into a list,
@@ -152,6 +109,7 @@ def transform(eventDict, eventID, options):
             Indicator entity linked to it.
             '''
             entityList = []
+            entityTypeList = []
             '''
             First, create the central TTP Entity and add it to the list.
             '''
@@ -213,26 +171,29 @@ def transform(eventDict, eventID, options):
                 )
             entityList.append((mapAttribute(attributelist,
                                entity).get_as_json(), uuid))
+            entityTypeList.append(entity.ENTITY_TTP)
             '''
             Check if there was an 'Actor' in the MISP Event and create/update
             the corresponding Actor entity in EclecticIQ
             '''
-            entity = eiqjson.EIQEntity()
-            entity.set_entity(entity.ENTITY_ACTOR)
-            entity.add_actor_type(entity.ACTOR_TYPE_HACKER)
-            entity.set_entity_tlp(tlp)
-            entity.set_entity_confidence(options.confidence)
-            entity.set_entity_source(settings.EIQSOURCE)
-            entity.set_entity_observed_time(timestamp)
-            entity.set_entity_title(actor + " - Threat Actor")
-            uuid = actor + " - Threat Actor"
-            attributelist = {'observable_types': [],
-                             'indicator_types': [],
-                             'ttp_types': []}
-            attributelist['observable_types'].append(
-                {'threat-actor': (actor, False)})
-            entityList.append((mapAttribute(attributelist,
-                               entity).get_as_json(), uuid))
+            if actor:
+                entity = eiqjson.EIQEntity()
+                entity.set_entity(entity.ENTITY_ACTOR)
+                entity.add_actor_type(entity.ACTOR_TYPE_HACKER)
+                entity.set_entity_tlp(tlp)
+                entity.set_entity_confidence(options.confidence)
+                entity.set_entity_source(settings.EIQSOURCE)
+                entity.set_entity_observed_time(timestamp)
+                entity.set_entity_title(actor + " - Threat Actor")
+                uuid = actor + " - Threat Actor"
+                attributelist = {'observable_types': [],
+                                 'indicator_types': [],
+                                 'ttp_types': []}
+                attributelist['observable_types'].append(
+                    {'threat-actor': (actor, False)})
+                entityList.append((mapAttribute(attributelist,
+                                   entity).get_as_json(), uuid))
+                entityTypeList.append(entity.ENTITY_ACTOR)
             '''
             Now take the built-in attributes and create an Indicator entity
             for those MISP Attributes
@@ -300,6 +261,7 @@ def transform(eventDict, eventID, options):
                 entity.set_entity_title(uuid)
                 entityList.append((mapAttribute(attributelist,
                                                 entity).get_as_json(), uuid))
+                entityTypeList.append(entity.ENTITY_INDICATOR)
             '''
             Now take all the MISP Objects and add them to the list of
             entities for EIQ
@@ -371,7 +333,8 @@ def transform(eventDict, eventID, options):
                     entityList.append((mapAttribute(attributelist,
                                                     entity).get_as_json(),
                                        uuid))
-            return entityList
+                    entityTypeList.append(entity.ENTITY_INDICATOR)
+            return entityList, entityTypeList
             if not options.verbose:
                 print("E) An empty result or other error was returned by " +
                       "MISP. Enable verbosity to see the JSON result that " +
@@ -382,6 +345,78 @@ def transform(eventDict, eventID, options):
                 print(eventDict)
     except:
         raise
+
+
+def eiqIngest(eiqJSON, options, uuid):
+    '''
+    Ingest the provided eiqJSON object into EIQ with the UUID provided
+    (or create a new entity if not previously existing)
+    '''
+    if options.simulate:
+        if options.verbose:
+            print("U) Not ingesting anything into EIQ because the " +
+                  "-s/--simulate flag was set.")
+        return False
+
+    if not settings.EIQSSLVERIFY:
+        if options.verbose:
+            print("W) You have disabled SSL verification for EIQ, " +
+                  "this is not recommended.")
+
+    eiqAPI = eiqcalls.EIQApi(insecure=not(settings.EIQSSLVERIFY))
+    url = settings.EIQHOST + settings.EIQVERSION
+    eiqAPI.set_host(url)
+    eiqAPI.set_credentials(settings.EIQUSER, settings.EIQPASS)
+    token = eiqAPI.do_auth()
+    try:
+        if options.verbose:
+            print("U) Contacting " + url + ' to ingest ' + uuid + ' ...')
+        if not options.duplicate:
+            response = eiqAPI.create_entity(eiqJSON, token=token,
+                                            update_identifier=uuid)
+        else:
+            response = eiqAPI.create_entity(eiqJSON, token=token)
+    except:
+        raise
+    if not response or ('errors' in response):
+        if response:
+            for err in response['errors']:
+                print('[error %d] %s' % (err['status'], err['title']))
+                print('\t%s' % (err['detail'], ))
+        else:
+            print('unable to get a response from host')
+        return False
+    else:
+        return response['data']['id']
+
+
+def create_relation(sourceuuid, sourcetype, targetuuid, targettype,
+                    options, uuid):
+    if options.simulate:
+        if options.verbose:
+            print("U) Not ingesting anything into EIQ because the " +
+                  "-s/--simulate flag was set.")
+        return False
+
+    if not settings.EIQSSLVERIFY:
+        if options.verbose:
+            print("W) You have disabled SSL verification for EIQ, " +
+                  "this is not recommended.")
+
+    relation = eiqjson.EIQRelation()
+    if sourcetype == eiqjson.EIQEntity.ENTITY_ACTOR:
+        relation.set_relation(relation.RELATION_ACTOR_TTP,
+                              label=relation.LABEL_ASSOCIATED_CAMPAIGN)
+        relation.set_source(sourceuuid, eiqjson.EIQEntity.ENTITY_ACTOR)
+        relation.set_target(targetuuid, eiqjson.EIQEntity.ENTITY_TTP)
+    if sourcetype == eiqjson.EIQEntity.ENTITY_INDICATOR:
+        relation.set_relation(relation.RELATION_INDICATOR_TTP,
+                              label=relation.LABEL_ASSOCIATED_CAMPAIGN)
+        relation.set_source(sourceuuid, eiqjson.EIQEntity.ENTITY_INDICATOR)
+        relation.set_target(targetuuid, eiqjson.EIQEntity.ENTITY_TTP)
+    relation.set_ingest_source(settings.EIQSOURCE)
+    options.duplicate = True
+    eiqIngest(relation.get_as_json(), options, uuid)
 
 
 def download(eventID, options):
@@ -498,12 +533,24 @@ if __name__ == "__main__":
                   eventDict['message'])
             sys.exit(1)
         else:
-            result = transform(eventDict, eventID, options)
-            if result:
-                for JSONentity in result:
-                    eiqJSON, uuid = JSONentity
+            entities, entitytypes = transform(eventDict, eventID, options)
+            if entities:
+                relations = []
+                for i in range(0, len(entities)):
+                    eiqJSON, uuid = entities[i]
                     if options.verbose:
                         print(json.dumps(json.loads(eiqJSON),
                                          indent=2,
                                          sort_keys=True))
-                    eiqIngest(eiqJSON, options, uuid)
+                    eiquuid = eiqIngest(eiqJSON, options, uuid)
+                    entitytype = entitytypes[i]
+                    if entitytype == eiqjson.EIQEntity.ENTITY_TTP:
+                        ttpuuid = eiquuid
+                    if entitytype == eiqjson.EIQEntity.ENTITY_ACTOR:
+                        create_relation(eiquuid, entitytype, ttpuuid,
+                                        eiqjson.EIQEntity.ENTITY_TTP,
+                                        options, uuid)
+                    if entitytype == eiqjson.EIQEntity.ENTITY_INDICATOR:
+                        create_relation(eiquuid, entitytype, ttpuuid,
+                                        eiqjson.EIQEntity.ENTITY_TTP,
+                                        options, uuid)
