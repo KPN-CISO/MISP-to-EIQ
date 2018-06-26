@@ -201,7 +201,7 @@ class EIQApi:
       updated_entity_json: [str] EIQ json of the new "updated" entity
       old_entity_id: [str] uuid of the superseded entity
       old_entity_type: [str] type of the old entity
-      returns: [python object] error python message or None on failure, stix_update_of structure on success
+      returns: [python object] error python message or None on failure, create_entity object of the new entity on success
   """
   def update_entity(self, updated_entity_json, old_entity_id, old_entity_type, token=None):
     # auth token
@@ -218,6 +218,7 @@ class EIQApi:
       return None
     if 'errors' in ret:
       return ret
+    entity_ret = ret
 
     # updated entity created, now make it the successor of the old entity
     if 'data' in ret and 'source' in ret['data'] and 'data' in ret['data'] and 'type' in ret['data']['data']:
@@ -232,7 +233,13 @@ class EIQApi:
     update.set_source(source_id, source_type)
     update.set_target(old_entity_id, old_entity_type)
     update.set_ingest_source(meta_source)
-    return self.create_entity(update.get_as_json(), token=token)
+    ret = self.create_entity(update.get_as_json(), token=token)
+    if not ret:
+        return None
+    if 'errors' in ret:
+        return ret
+    # on success, return the original create_entity result
+    return entity_ret
 
 if __name__ == '__main__':
   pass

@@ -23,13 +23,33 @@ class EIQEntity:
   ENTITY_SIGHTING = 'eclecticiq-sighting'
   ENTITY_REPORT = 'report'
   ENTITY_TTP = 'ttp'
+  ENTITY_ACTOR = 'threat-actor'
 
   ENTITY_TYPES = [
     ENTITY_INDICATOR,
     ENTITY_SIGHTING,
     ENTITY_REPORT,
-    ENTITY_TTP
+    ENTITY_TTP,
+    ENTITY_ACTOR
   ]
+
+  ACTOR_TYPE_CYBER_ESPIONAGE = "Cyber Espionage Operation's"
+  ACTOR_TYPE_HACKER = 'Hacker'
+  ACTOR_TYPE_HACKER_WHITE_HAT = 'Hacker - White hat'
+  ACTOR_TYPE_HACKER_GRAY_HAT = 'Hacker - Gray hat'
+  ACTOR_TYPE_HACKER_BLACK_HAT = 'Hacker - Black hat'
+  ACTOR_TYPE_HACKTIVIST = 'Hacktivist'
+  ACTOR_TYPE_STATE_ACTOR = 'Statet Actor / Agency'
+  ACTOR_TYPE_ECRIME_CRED_THEFT_BOTNET_OPS = 'eCrime Actor - Credential Theft Botnet Operator'
+  ACTOR_TYPE_ECRIME_CRED_THEFT_BOTNET_SERVICE = 'eCrime Actor - Credential Theft Botnet Service'
+  ACTOR_TYPE_ECRIME_MALWARE_DEV = 'eCrime Actor - Malware Developer'
+  ACTOR_TYPE_ECRIME_MONEY_LAUNDERING_NETWORK = 'eCrime Actor - Money Laundering Network'
+  ACTOR_TYPE_ECRIME_ORG_CRIME_ACTOR = 'eCrime Actor - Organized Crime Actor'
+  ACTOR_TYPE_ECRIME_SPAM_SERVICE = 'eCrime Actor - Spam Service'
+  ACTOR_TYPE_ECRIME_TRAFFIC_SERVICE = 'eCrime Actor - Traffic Service'
+  ACTOR_TYPE_ECRIME_UNDERGROUND_CALL_SERVICE = 'eCrime Actor - Underground Call Service'
+  ACTOR_TYPE_INSIDER_TREAT = 'Insider Threat'
+  ACTOR_TYPE_DISGRUNTLED_CUSTOMER_USER = 'Disgruntled Customer / User'
 
   OBSERVABLE_ACTOR = 'actor-id'
   OBSERVABLE_ADDRESS = 'address'
@@ -232,8 +252,17 @@ class EIQEntity:
     
     if entity_type == self.ENTITY_INDICATOR or entity_type == self.ENTITY_SIGHTING:
       self.set_entity_impact(impact)
+    if entity_type == self.ENTITY_ACTOR:
+      self.set_entity_identity(entity_title)
     
     self.set_entity_tlp(tlp)
+
+  def set_entity_identity(self, identity_title):
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    self.__doc['data']['data']['identity'] = {}
+    self.__doc['data']['data']['identity']['type'] = 'identity'
+    self.__doc['data']['data']['identity']['name'] = identity_title
 
   def get_entity_type(self):
     if not self.__is_entity_set:
@@ -284,6 +313,13 @@ class EIQEntity:
     self.__doc['data']['data']['confidence']['type'] = 'confidence'
     self.__doc['data']['data']['confidence']['value'] = confidence
 
+  def set_entity_identity(self, identity_title):
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    self.__doc['data']['data']['identity'] = {}
+    self.__doc['data']['data']['identity']['type'] = 'identity'
+    self.__doc['data']['data']['identity']['name'] = identity_title
+
   def set_entity_impact(self, impact = 'Unknown'):
     if not self.__is_entity_set:
       raise Exception('You need to set an entity first using set_entity(...)')
@@ -322,6 +358,16 @@ class EIQEntity:
     indicator_type_object = { 'value': indicator_type }
     if not indicator_type_object in self.__doc['data']['data']['types']:
       self.__doc['data']['data']['types'].append({'value': indicator_type})
+
+  def add_actor_type(self, actor_type):
+    if not self.__is_entity_set:
+      raise Exception('You need to set an entity first using set_entity(...)')
+    if not 'types' in self.__doc['data']['data'].keys():
+      self.__doc['data']['data']['types'] = []
+    # only add unique values
+    actor_type_object = { 'type': 'statement', 'value': actor_type }
+    if not actor_type_object in self.__doc['data']['data']['types']:
+      self.__doc['data']['data']['types'].append(actor_type_object)
 
   def add_ttp_type(self, ttp_type):
     if not self.__is_entity_set:
@@ -421,6 +467,8 @@ class EIQEntity:
       raise Exception('You need to set an entity first using set_entity(...)')
     if self.__doc['data']['data']['type'] == self.ENTITY_INDICATOR and not 'types' in self.__doc['data']['data'].keys():
       sys.stderr.write('[!] no indicator type was set using add_indicator_type(indicator_type)\n')
+    if self.__doc['data']['data']['type'] == self.ENTITY_ACTOR and (not 'types' in self.__doc['data']['data'].keys() or len(self.__doc['data']['data']['types']) == 0):
+      sys.stderr.write('[!] no actor type was set using add_actor_type(actor_type)\n')
     return self.__doc
 
   def get_as_json(self):
@@ -428,6 +476,8 @@ class EIQEntity:
       raise Exception('You need to set an entity first using set_entity(...)')
     if self.__doc['data']['data']['type'] == self.ENTITY_INDICATOR and not 'types' in self.__doc['data']['data'].keys():
       sys.stderr.write('[!] no indicator type was set using add_indicator_type(indicator_type)\n')
+    if self.__doc['data']['data']['type'] == self.ENTITY_ACTOR and (not 'types' in self.__doc['data']['data'].keys() or len(self.__doc['data']['data']['types']) == 0):
+      sys.stderr.write('[!] no actor type was set using add_actor_type(actor_type)\n')
     return json.dumps(self.__doc)
 
 class EIQRelation:

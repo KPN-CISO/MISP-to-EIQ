@@ -24,9 +24,10 @@ EIQPASS='myeiqautomationpass'
 
 EIQSOURCE='myeiqautomationsource'  
  
-8) [Required] Choose a prefix/header that will be added to every EIQ entity for easy searches/recognition
+8) [Required] Choose a prefix/header that will be added to every EIQ entity for easy searches/recognition, and choose the maximum title length of attributes types that describe the content of indicators
 
 TITLETAG='[MyCERT MISP]'  
+TITLELENGTH=70
 
 9) [Optional] Change the MISPSSLVERIFY and EIQSSLVERIFY variables to False if you do not want to verify SSL certificates (e.g. when using self-signed certificates). Do not disable this unless you are certain and understand the risks.
 

@@ -214,6 +214,26 @@ def transform(eventDict, eventID, options):
             entityList.append((mapAttribute(attributelist,
                                entity).get_as_json(), uuid))
             '''
+            Check if there was an 'Actor' in the MISP Event and create/update
+            the corresponding Actor entity in EclecticIQ
+            '''
+            entity = eiqjson.EIQEntity()
+            entity.set_entity(entity.ENTITY_ACTOR)
+            entity.add_actor_type(entity.ACTOR_TYPE_HACKER)
+            entity.set_entity_tlp(tlp)
+            entity.set_entity_confidence(options.confidence)
+            entity.set_entity_source(settings.EIQSOURCE)
+            entity.set_entity_observed_time(timestamp)
+            entity.set_entity_title(actor + " - Threat Actor")
+            uuid = actor + " - Threat Actor"
+            attributelist = {'observable_types': [],
+                             'indicator_types': [],
+                             'ttp_types': []}
+            attributelist['observable_types'].append(
+                {'threat-actor': (actor, False)})
+            entityList.append((mapAttribute(attributelist,
+                               entity).get_as_json(), uuid))
+            '''
             Now take the built-in attributes and create an Indicator entity
             for those MISP Attributes
             '''
@@ -227,20 +247,17 @@ def transform(eventDict, eventID, options):
                     entity.set_entity_impact(options.impact)
                 entity.set_entity_source(settings.EIQSOURCE)
                 entity.set_entity_observed_time(timestamp)
-                uuid = "Attributes for "
-                uuid += "Event " + str(eventID)
-                uuid += " - " + settings.TITLETAG
                 entity.set_entity_tlp(tlp)
                 if actor:
                     attributelist['observable_types'].append(
                         {'threat-actor': (actor, False)})
+                if org:
+                    attributelist['observable_types'].append(
+                        {'org': (org, False)})
                 entity.set_entity_reliability(reliability)
                 if options.type == 'i' or options.type == 's':
                     entity.set_entity_impact(options.impact)
                 entity.set_entity_confidence(options.confidence)
-                attributelist['observable_types'].append(
-                        {'org': (org, False)}
-                )
                 typeslist = set()
                 attributeslist = []
                 if 'Attribute' in mispEvent:
@@ -274,9 +291,13 @@ def transform(eventDict, eventID, options):
                             {type: (value, to_ids)}
                         )
                 types = ", ".join(typeslist)
-                entity.set_entity_title(types + " for " +
-                                        "Event " + str(eventID) + 
-                                        " - " + settings.TITLETAG)
+                if len(types) > (settings.TITLELENGTH + 4):
+                    types = types[:settings.TITLELENGTH] + " ..."
+                uuid = "Attrs: " + types
+                uuid += " in Event "
+                uuid += str(eventID)
+                uuid += " - " + settings.TITLETAG
+                entity.set_entity_title(uuid)
                 entityList.append((mapAttribute(attributelist,
                                                 entity).get_as_json(), uuid))
             '''
@@ -311,9 +332,9 @@ def transform(eventDict, eventID, options):
                     if options.type == 'i' or options.type == 's':
                         entity.set_entity_impact(options.impact)
                     entity.set_entity_confidence(options.confidence)
-                    attributelist['observable_types'].append(
-                            {'org': (org, False)}
-                    )
+                    if org:
+                        attributelist['observable_types'].append(
+                            {'org': (org, False)})
                     typeslist = set()
                     if 'Attribute' in attribute:
                         for attribute in attribute['Attribute']:
@@ -340,10 +361,13 @@ def transform(eventDict, eventID, options):
                                     {type: (value, to_ids)}
                                 )
                     types = ", ".join(typeslist)
-                    entity.set_entity_title(types + " for " +
-                                            "Event " +
-                                            str(eventID) + " - " +
-                                            settings.TITLETAG)
+                    if len(types) > (settings.TITLELENGTH + 4):
+                        types = types[:settings.TITLELENGTH] + " ..."
+                    title = "Obj. Attrs: " + types
+                    title += " in Event "
+                    title += str(eventID)
+                    title += " - " + settings.TITLETAG
+                    entity.set_entity_title(title)
                     entityList.append((mapAttribute(attributelist,
                                                     entity).get_as_json(),
                                        uuid))
