@@ -259,9 +259,10 @@ def transform(eventDict, eventID, options):
                 uuid += str(eventID)
                 uuid += " - " + settings.TITLETAG
                 entity.set_entity_title(uuid)
-                entityList.append((mapAttribute(attributelist,
-                                                entity).get_as_json(), uuid))
-                entityTypeList.append(entity.ENTITY_INDICATOR)
+                if len(typeslist) > 0:
+                    entityList.append((mapAttribute(attributelist,
+                                                    entity).get_as_json(), uuid))
+                    entityTypeList.append(entity.ENTITY_INDICATOR)
             '''
             Now take all the MISP Objects and add them to the list of
             entities for EIQ
@@ -288,8 +289,9 @@ def transform(eventDict, eventID, options):
                     entity.set_entity_observed_time(timestamp)
                     uuid = attribute['uuid']
                     entity.set_entity_tlp(tlp)
-                    attributelist['observable_types'].append(
-                        {'threat-actor': (actor, False)})
+                    if actor:
+                        attributelist['observable_types'].append(
+                            {'threat-actor': (actor, False)})
                     entity.set_entity_reliability(reliability)
                     if options.type == 'i' or options.type == 's':
                         entity.set_entity_impact(options.impact)
@@ -330,10 +332,10 @@ def transform(eventDict, eventID, options):
                     title += str(eventID)
                     title += " - " + settings.TITLETAG
                     entity.set_entity_title(title)
-                    entityList.append((mapAttribute(attributelist,
-                                                    entity).get_as_json(),
-                                       uuid))
-                    entityTypeList.append(entity.ENTITY_INDICATOR)
+                    if len(typeslist) > 0:
+                        entityList.append((mapAttribute(attributelist,
+                                                        entity).get_as_json(), uuid))
+                        entityTypeList.append(entity.ENTITY_INDICATOR)
             return entityList, entityTypeList
             if not options.verbose:
                 print("E) An empty result or other error was returned by " +
