@@ -259,10 +259,9 @@ def transform(eventDict, eventID, options):
                 uuid += str(eventID)
                 uuid += " - " + settings.TITLETAG
                 entity.set_entity_title(uuid)
-                if len(typeslist) > 0:
-                    entityList.append((mapAttribute(attributelist,
-                                                    entity).get_as_json(), uuid))
-                    entityTypeList.append(entity.ENTITY_INDICATOR)
+                entityList.append((mapAttribute(attributelist,
+                                                entity).get_as_json(), uuid))
+                entityTypeList.append(entity.ENTITY_INDICATOR)
             '''
             Now take all the MISP Objects and add them to the list of
             entities for EIQ
