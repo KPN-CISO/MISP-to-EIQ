@@ -254,7 +254,7 @@ def transform(eventDict, eventID, options):
                 types = ", ".join(typeslist)
                 if len(types) > (settings.TITLELENGTH + 4):
                     types = types[:settings.TITLELENGTH] + " ..."
-                uuid = "Attrs: " + types
+                uuid = str(len(types)) + "attributes: " + types
                 uuid += " in Event "
                 uuid += str(eventID)
                 uuid += " - " + settings.TITLETAG
@@ -326,14 +326,16 @@ def transform(eventDict, eventID, options):
                     types = ", ".join(typeslist)
                     if len(types) > (settings.TITLELENGTH + 4):
                         types = types[:settings.TITLELENGTH] + " ..."
-                    title = "Obj. Attrs: " + types
+                    title = str(len(types))
+                    title += "objects with attributes: " + types
                     title += " in Event "
                     title += str(eventID)
                     title += " - " + settings.TITLETAG
                     entity.set_entity_title(title)
                     if len(typeslist) > 0:
                         entityList.append((mapAttribute(attributelist,
-                                                        entity).get_as_json(), uuid))
+                                                        entity).get_as_json(),
+                                           uuid))
                         entityTypeList.append(entity.ENTITY_INDICATOR)
             return entityList, entityTypeList
             if not options.verbose:
