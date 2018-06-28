@@ -139,10 +139,7 @@ def transform(eventDict, eventID, options):
                 timestamp = datetime.datetime.utcfromtimestamp(
                     int(mispEvent['timestamp'])).strftime("%Y-%m-%dT%H:%M:%SZ")
             entity.set_entity_observed_time(timestamp)
-            if 'uuid' in mispEvent:
-                uuid = mispEvent['uuid']
-            else:
-                uuid = str(eventID)
+            uuid = str(eventID)
             tlp = ''
             actor = None
             reliability = 'F'
@@ -254,11 +251,12 @@ def transform(eventDict, eventID, options):
                 types = ", ".join(typeslist)
                 if len(types) > (settings.TITLELENGTH + 4):
                     types = types[:settings.TITLELENGTH] + " ..."
-                uuid = str(len(typeslist)) + " attributes: " + types
-                uuid += " in Event "
-                uuid += str(eventID)
-                uuid += " - " + settings.TITLETAG
-                entity.set_entity_title(uuid)
+                uuid = str(eventID) + '-0'
+                title = str(len(typeslist)) + " attributes: " + types
+                title += " in Event "
+                title += str(eventID)
+                title += " - " + settings.TITLETAG
+                entity.set_entity_title(title)
                 entityList.append((mapAttribute(attributelist,
                                                 entity).get_as_json(), uuid))
                 entityTypeList.append(entity.ENTITY_INDICATOR)
@@ -286,7 +284,7 @@ def transform(eventDict, eventID, options):
                               "finding data in EclecticIQ.")
                         sys.exit(1)
                     entity.set_entity_observed_time(timestamp)
-                    uuid = attribute['uuid']
+                    uuid = str(eventID) + '-' + attribute['id']
                     entity.set_entity_tlp(tlp)
                     if actor:
                         attributelist['observable_types'].append(
