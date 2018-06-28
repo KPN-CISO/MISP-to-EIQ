@@ -254,7 +254,7 @@ def transform(eventDict, eventID, options):
                 types = ", ".join(typeslist)
                 if len(types) > (settings.TITLELENGTH + 4):
                     types = types[:settings.TITLELENGTH] + " ..."
-                uuid = str(len(types)) + "attributes: " + types
+                uuid = str(len(typeslist)) + " attributes: " + types
                 uuid += " in Event "
                 uuid += str(eventID)
                 uuid += " - " + settings.TITLETAG
@@ -326,8 +326,8 @@ def transform(eventDict, eventID, options):
                     types = ", ".join(typeslist)
                     if len(types) > (settings.TITLELENGTH + 4):
                         types = types[:settings.TITLELENGTH] + " ..."
-                    title = str(len(types))
-                    title += "objects with attributes: " + types
+                    title = str(len(typeslist))
+                    title += " attributes in object: " + types
                     title += " in Event "
                     title += str(eventID)
                     title += " - " + settings.TITLETAG
