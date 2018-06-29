@@ -139,7 +139,7 @@ def transform(eventDict, eventID, options):
                 timestamp = datetime.datetime.utcfromtimestamp(
                     int(mispEvent['timestamp'])).strftime("%Y-%m-%dT%H:%M:%SZ")
             entity.set_entity_observed_time(timestamp)
-            uuid = str(eventID)
+            uuid = str(eventID) + '-MISP'
             tlp = ''
             actor = None
             reliability = 'F'
@@ -216,7 +216,7 @@ def transform(eventDict, eventID, options):
                 if options.type == 'i' or options.type == 's':
                     entity.set_entity_impact(options.impact)
                 entity.set_entity_confidence(options.confidence)
-                typeslist = set()
+                typeslist = []
                 attributeslist = []
                 if 'Attribute' in mispEvent:
                     attributeslist += mispEvent['Attribute']
@@ -234,8 +234,8 @@ def transform(eventDict, eventID, options):
                     value = attribute['value']
                     if '|' in type:
                         type1, type2 = type.split('|')
-                        typeslist.add(type1)
-                        typeslist.add(type2)
+                        typeslist.append(type1)
+                        typeslist.append(type2)
                         value1, value2 = value.split('|')
                         attributelist['observable_types'].append(
                             {type1: (value1, to_ids)}
@@ -244,14 +244,14 @@ def transform(eventDict, eventID, options):
                             {type2: (value2, to_ids)}
                         )
                     else:
-                        typeslist.add(type)
+                        typeslist.append(type)
                         attributelist['observable_types'].append(
                             {type: (value, to_ids)}
                         )
-                types = ", ".join(typeslist)
+                types = ", ".join(set(typeslist))
                 if len(types) > (settings.TITLELENGTH + 4):
                     types = types[:settings.TITLELENGTH] + " ..."
-                uuid = str(eventID) + '-0'
+                uuid = str(eventID) + '-0-MISP'
                 title = str(len(typeslist)) + " attributes: " + types
                 title += " in Event "
                 title += str(eventID)
@@ -284,7 +284,7 @@ def transform(eventDict, eventID, options):
                               "finding data in EclecticIQ.")
                         sys.exit(1)
                     entity.set_entity_observed_time(timestamp)
-                    uuid = str(eventID) + '-' + attribute['id']
+                    uuid = str(eventID) + '-' + attribute['id'] + '-MISP'
                     entity.set_entity_tlp(tlp)
                     if actor:
                         attributelist['observable_types'].append(
@@ -296,7 +296,7 @@ def transform(eventDict, eventID, options):
                     if org:
                         attributelist['observable_types'].append(
                             {'org': (org, False)})
-                    typeslist = set()
+                    typeslist = []
                     if 'Attribute' in attribute:
                         for attribute in attribute['Attribute']:
                             if 'to_ids' in attribute:
@@ -307,8 +307,8 @@ def transform(eventDict, eventID, options):
                             value = attribute['value']
                             if '|' in type:
                                 type1, type2 = type.split('|')
-                                typeslist.add(type1)
-                                typeslist.add(type2)
+                                typeslist.append(type1)
+                                typeslist.append(type2)
                                 value1, value2 = value.split('|')
                                 attributelist['observable_types'].append(
                                     {type1: (value1, to_ids)}
@@ -317,11 +317,11 @@ def transform(eventDict, eventID, options):
                                     {type2: (value2, to_ids)}
                                 )
                             else:
-                                typeslist.add(type)
+                                typeslist.append(type)
                                 attributelist['observable_types'].append(
                                     {type: (value, to_ids)}
                                 )
-                    types = ", ".join(typeslist)
+                    types = ", ".join(set(typeslist))
                     if len(types) > (settings.TITLELENGTH + 4):
                         types = types[:settings.TITLELENGTH] + " ..."
                     title = str(len(typeslist))
