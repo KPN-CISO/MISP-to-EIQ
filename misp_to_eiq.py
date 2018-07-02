@@ -17,6 +17,7 @@ import eiqjson
 import eiqcalls
 import pprint
 import socket
+import copy
 
 from MISPtoEIQtable import *
 from config import settings
@@ -416,8 +417,9 @@ def create_relation(sourceuuid, sourcetype, targetuuid, targettype,
         relation.set_source(sourceuuid, eiqjson.EIQEntity.ENTITY_INDICATOR)
         relation.set_target(targetuuid, eiqjson.EIQEntity.ENTITY_TTP)
     relation.set_ingest_source(settings.EIQSOURCE)
-    options.duplicate = True
-    eiqIngest(relation.get_as_json(), options, uuid)
+    new_options = copy.copy(options)
+    new_options.duplicate = True
+    eiqIngest(relation.get_as_json(), new_options, uuid)
 
 
 def download(eventID, options):
