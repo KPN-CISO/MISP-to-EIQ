@@ -233,6 +233,25 @@ def transform(eventDict, eventID, options):
                         to_ids = False
                     type = attribute['type'].lower()
                     value = attribute['value']
+                    if type == 'threat-actor':
+                        actor = value
+                        actorentity = eiqjson.EIQEntity()
+                        actorentity.set_entity(actorentity.ENTITY_ACTOR)
+                        actorentity.add_actor_type(actorentity.ACTOR_TYPE_HACKER)
+                        actorentity.set_entity_tlp(tlp)
+                        actorentity.set_entity_confidence(options.confidence)
+                        actorentity.set_entity_source(settings.EIQSOURCE)
+                        actorentity.set_entity_observed_time(timestamp)
+                        actorentity.set_entity_title(actor + " - Threat Actor")
+                        uuid = actor + " - Threat Actor"
+                        attributelist = {'observable_types': [],
+                                         'indicator_types': [],
+                                         'ttp_types': []}
+                        attributelist['observable_types'].append(
+                            {'threat-actor': (actor, False)})
+                        entityList.append((mapAttribute(attributelist,
+                                           actorentity).get_as_json(), uuid))
+                        entityTypeList.append(actorentity.ENTITY_ACTOR)
                     if '|' in type:
                         type1, type2 = type.split('|')
                         typeslist.append(type1)
@@ -306,6 +325,25 @@ def transform(eventDict, eventID, options):
                                 to_ids = False
                             type = attribute['type'].lower()
                             value = attribute['value']
+                            if type == 'threat-actor':
+                                actor = value
+                                actorentity = eiqjson.EIQEntity()
+                                actorentity.set_entity(actorentity.ENTITY_ACTOR)
+                                actorentity.add_actor_type(actorentity.ACTOR_TYPE_HACKER)
+                                actorentity.set_entity_tlp(tlp)
+                                actorentity.set_entity_confidence(options.confidence)
+                                actorentity.set_entity_source(settings.EIQSOURCE)
+                                actorentity.set_entity_observed_time(timestamp)
+                                actorentity.set_entity_title(actor + " - Threat Actor")
+                                uuid = actor + " - Threat Actor"
+                                attributelist = {'observable_types': [],
+                                                 'indicator_types': [],
+                                                 'ttp_types': []}
+                                attributelist['observable_types'].append(
+                                    {'threat-actor': (actor, False)})
+                                entityList.append((mapAttribute(attributelist,
+                                                   actorentity).get_as_json(), uuid))
+                                entityTypeList.append(actorentity.ENTITY_ACTOR)
                             if '|' in type:
                                 type1, type2 = type.split('|')
                                 typeslist.append(type1)
