@@ -93,6 +93,7 @@ class EIQApi:
     headers = {}
     headers['User-Agent'] = 'eiqlib/1.0'
     headers['Authorization'] = 'Bearer %s' % (token['token'],)
+    headers['Cookie'] = 'platform-api-token=%s' % (token['token'],)
     
     # make call
     try:
@@ -183,6 +184,7 @@ class EIQApi:
 
     headers = {}
     headers['Authorization'] = 'Bearer %s' % (token['token'],)
+    headers['Cookie'] = 'platform-api-token=%s' % (token['token'],)
 
     if isinstance(entity_json, str):
       entity_json = entity_json.encode()
@@ -211,6 +213,7 @@ class EIQApi:
         raise Exception('update_entity was unable to authenticate')
     headers = {}
     headers['Authorization'] = 'Bearer %s' % (token['token'],)
+    headers['Cookie'] = 'platform-api-token=%s' % (token['token'],)
 
     # make call to create updated entity
     ret = self.create_entity(updated_entity_json, token=token)
@@ -221,10 +224,10 @@ class EIQApi:
     entity_ret = ret
 
     # updated entity created, now make it the successor of the old entity
-    if 'data' in ret and 'source' in ret['data'] and 'data' in ret['data'] and 'type' in ret['data']['data']:
+    if 'data' in ret and 'data' in ret['data'] and 'type' in ret['data']['data'] and 'sources' in ret['data'] and len(ret['data']['sources']) > 0:
       source_id = ret['data']['id']
       source_type = ret['data']['data']['type']
-      meta_source = ret['data']['meta']['source']
+      meta_source = ret['data']['sources'][-1]['source_id']
     else:
       return None
 
