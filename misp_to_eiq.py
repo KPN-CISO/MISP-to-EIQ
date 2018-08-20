@@ -244,12 +244,12 @@ def transform(eventDict, eventID, options):
                         actorentity.set_entity_observed_time(timestamp)
                         actorentity.set_entity_title(actor + " - Threat Actor")
                         uuid = actor + " - Threat Actor"
-                        attributelist = {'observable_types': [],
+                        actorlist = {'observable_types': [],
                                          'indicator_types': [],
                                          'ttp_types': []}
-                        attributelist['observable_types'].append(
+                        actorlist['observable_types'].append(
                             {'threat-actor': (actor, False)})
-                        entityList.append((mapAttribute(attributelist,
+                        entityList.append((mapAttribute(actorlist,
                                            actorentity).get_as_json(), uuid))
                         entityTypeList.append(actorentity.ENTITY_ACTOR)
                     if '|' in type:
