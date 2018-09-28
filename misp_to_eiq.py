@@ -133,9 +133,6 @@ def transform(eventDict, eventID, options):
                 sys.exit(1)
             else:
                 info = mispEvent['info']
-            entity.set_entity_title(info + " - Event " +
-                                    str(eventID) + " - " +
-                                    settings.TITLETAG)
             if 'timestamp' in mispEvent:
                 timestamp = datetime.datetime.utcfromtimestamp(
                     int(mispEvent['timestamp'])).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -162,11 +159,19 @@ def transform(eventDict, eventID, options):
             entity.set_entity_tlp(tlp)
             entity.set_entity_reliability(reliability)
             entity.set_entity_confidence(options.confidence)
-            if 'Org' or 'Orgc' in mispEvent:
+            if 'Org' in mispEvent:
                 org = mispEvent['Org']['name']
+            if 'Orgc' in mispEvent:
+                orgc = mispEvent['Orgc']['name']
                 attributelist['observable_types'].append(
-                    {'org': (org, False)}
+                    {'org': (orgc, False)}
                 )
+                orgcTag = '[' + orgc + ']'
+            else:
+                orgcTag = settings.TITLETAG
+            entity.set_entity_title(info + " - Event " +
+                                    str(eventID) + " - " +
+                                    orgcTag)
             entityList.append((mapAttribute(attributelist,
                                entity).get_as_json(), uuid))
             entityTypeList.append(entity.ENTITY_TTP)
@@ -187,6 +192,10 @@ def transform(eventDict, eventID, options):
                 attributelist = {'observable_types': [],
                                  'indicator_types': [],
                                  'ttp_types': []}
+                if orgc:
+                    attributelist['observable_types'].append(
+                        {'org': (orgc, False)}
+                    )
                 attributelist['observable_types'].append(
                     {'threat-actor': (actor, False)})
                 entityList.append((mapAttribute(attributelist,
@@ -210,9 +219,9 @@ def transform(eventDict, eventID, options):
                 if actor:
                     attributelist['observable_types'].append(
                         {'threat-actor': (actor, False)})
-                if org:
+                if orgc:
                     attributelist['observable_types'].append(
-                        {'org': (org, False)})
+                        {'org': (orgc, False)})
                 entity.set_entity_reliability(reliability)
                 if options.type == 'i' or options.type == 's':
                     entity.set_entity_impact(options.impact)
@@ -275,7 +284,7 @@ def transform(eventDict, eventID, options):
                 title = str(len(typeslist)) + " attributes: " + types
                 title += " in Event "
                 title += str(eventID)
-                title += " - " + settings.TITLETAG
+                title += " - " + orgcTag
                 entity.set_entity_title(title)
                 entityList.append((mapAttribute(attributelist,
                                                 entity).get_as_json(), uuid))
@@ -309,13 +318,13 @@ def transform(eventDict, eventID, options):
                     if actor:
                         attributelist['observable_types'].append(
                             {'threat-actor': (actor, False)})
+                    if orgc:
+                        attributelist['observable_types'].append(
+                            {'org': (orgc, False)})
                     entity.set_entity_reliability(reliability)
                     if options.type == 'i' or options.type == 's':
                         entity.set_entity_impact(options.impact)
                     entity.set_entity_confidence(options.confidence)
-                    if org:
-                        attributelist['observable_types'].append(
-                            {'org': (org, False)})
                     typeslist = []
                     if 'Attribute' in attribute:
                         for attribute in attribute['Attribute']:
@@ -367,7 +376,7 @@ def transform(eventDict, eventID, options):
                     title += " attributes in object: " + types
                     title += " in Event "
                     title += str(eventID)
-                    title += " - " + settings.TITLETAG
+                    title += " - " + orgcTag
                     entity.set_entity_title(title)
                     if len(typeslist) > 0:
                         entityList.append((mapAttribute(attributelist,
