@@ -254,8 +254,8 @@ def transform(eventDict, eventID, options):
                         actorentity.set_entity_title(actor + " - Threat Actor")
                         uuid = actor + " - Threat Actor"
                         actorlist = {'observable_types': [],
-                                         'indicator_types': [],
-                                         'ttp_types': []}
+                                     'indicator_types': [],
+                                     'ttp_types': []}
                         actorlist['observable_types'].append(
                             {'threat-actor': (actor, False)})
                         entityList.append((mapAttribute(actorlist,
@@ -281,7 +281,8 @@ def transform(eventDict, eventID, options):
                 if len(types) > (settings.TITLELENGTH + 4):
                     types = types[:settings.TITLELENGTH] + " ..."
                 uuid = str(eventID) + '-0-MISP'
-                title = str(len(typeslist)) + " attributes: " + types
+                title = "Primary IoCs: "
+                title += str(len(typeslist)) + " - " + types
                 title += " in Event "
                 title += str(eventID)
                 title += " - " + orgcTag
@@ -351,7 +352,8 @@ def transform(eventDict, eventID, options):
                                 attributelist['observable_types'].append(
                                     {'threat-actor': (actor, False)})
                                 entityList.append((mapAttribute(attributelist,
-                                                   actorentity).get_as_json(), uuid))
+                                                   actorentity).get_as_json(),
+                                                   uuid))
                                 entityTypeList.append(actorentity.ENTITY_ACTOR)
                             if '|' in type:
                                 type1, type2 = type.split('|')
@@ -372,8 +374,9 @@ def transform(eventDict, eventID, options):
                     types = ", ".join(set(typeslist))
                     if len(types) > (settings.TITLELENGTH + 4):
                         types = types[:settings.TITLELENGTH] + " ..."
-                    title = str(len(typeslist))
-                    title += " attributes in object: " + types
+                    title = "Secondary IoCs: "
+                    title += str(len(typeslist))
+                    title += " - " + types
                     title += " in Event "
                     title += str(eventID)
                     title += " - " + orgcTag
@@ -392,7 +395,7 @@ def transform(eventDict, eventID, options):
                 print("E) An empty JSON result or other error was returned " +
                       "by MISP:")
                 print(eventDict)
-    except:
+    except KeyError:
         raise
 
 
@@ -425,7 +428,7 @@ def eiqIngest(eiqJSON, options, uuid):
                                             update_identifier=uuid)
         else:
             response = eiqAPI.create_entity(eiqJSON, token=token)
-    except:
+    except IOError:
         raise
     if not response or ('errors' in response):
         if response:
@@ -499,7 +502,7 @@ def download(eventID, options):
             print("U) Got a MISP response:")
             pprint.pprint(mispdict)
         return mispdict
-    except:
+    except IOError:
         if options.verbose:
             print("E) An error occured downloading MISP Event ID " +
                   eventID +
