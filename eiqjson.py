@@ -76,6 +76,7 @@ class EIQEntity:
   OBSERVABLE_SHA1 = 'hash-sha1'
   OBSERVABLE_SHA256 = 'hash-sha256'
   OBSERVABLE_SHA512 = 'hash-sha512'
+  OBSERVABLE_SSDEEP = 'fox-portal-uri'
   OBSERVABLE_FILE = 'file'
   OBSERVABLE_DOMAIN = 'domain'
   OBSERVABLE_EMAIL = 'email'
