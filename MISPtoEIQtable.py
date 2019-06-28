@@ -32,7 +32,7 @@ MISPtoEIQtable = {
                                 types.INDICATOR_MALWARE_ARTIFACTS,
                                 types.INDICATOR_FILE_HASH_WATCHLIST]},
                 'ssdeep': {
-                        'eiqtype': types.OBSERVABLE_FOXPORTALURI,
+                        'eiqtype': types.OBSERVABLE_FOX_PORTAL_URI,
                         'classification': types.CLASSIFICATION_BAD,
                         'confidence': types.CONFIDENCE_LOW,
                         'indicator_types': [
