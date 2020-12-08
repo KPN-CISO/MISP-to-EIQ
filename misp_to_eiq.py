@@ -169,7 +169,7 @@ def transform(eventDict, eventID, options):
                 orgcTag = '[' + orgc + ']'
             else:
                 orgcTag = settings.TITLETAG
-            entity.set_entity_title(info + " - Event " +
+            entity.set_entity_title(info + " - MISP " +
                                     str(eventID) + " - " +
                                     orgcTag)
             entityList.append((mapAttribute(attributelist,
@@ -281,9 +281,10 @@ def transform(eventDict, eventID, options):
                 if len(types) > (settings.TITLELENGTH + 4):
                     types = types[:settings.TITLELENGTH] + " ..."
                 uuid = str(eventID) + '-0-MISP'
-                title = "Primary IoCs: "
-                title += str(len(typeslist)) + " - " + types
-                title += " in Event "
+                title = info + " - Main IoCs: "
+                #title += str(len(typeslist)) + " - "
+                title += types
+                title += " - MISP "
                 title += str(eventID)
                 title += " - " + orgcTag
                 entity.set_entity_title(title)
@@ -374,14 +375,17 @@ def transform(eventDict, eventID, options):
                     types = ", ".join(set(typeslist))
                     if len(types) > (settings.TITLELENGTH + 4):
                         types = types[:settings.TITLELENGTH] + " ..."
-                    title = "Secondary IoCs: "
-                    title += str(len(typeslist))
-                    title += " - " + types
-                    title += " in Event "
+                    title = info + " - Add. IoCs: "
+                    #title += str(len(typeslist)) + " - "
+                    title += types
+                    title += " - MISP "
                     title += str(eventID)
                     title += " - " + orgcTag
                     entity.set_entity_title(title)
                     if len(typeslist) > 0:
+                        print("---START---")
+                        print(mapAttribute(attributelist,entity).get_as_json())
+                        print("----END----")
                         entityList.append((mapAttribute(attributelist,
                                                         entity).get_as_json(),
                                            uuid))
