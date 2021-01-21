@@ -265,13 +265,22 @@ def transform(eventDict, eventID, options):
                         type1, type2 = type.split('|')
                         typeslist.append(type1)
                         typeslist.append(type2)
-                        value1, value2 = value.split('|')
-                        attributelist['observable_types'].append(
-                            {type1: (value1, to_ids)}
-                        )
-                        attributelist['observable_types'].append(
-                            {type2: (value2, to_ids)}
-                        )
+                        print(typeslist)
+                        print(value)
+                        try:
+                            value1, value2 = value.split('|')
+                            attributelist['observable_types'].append(
+                                {type1: (value1, to_ids)}
+                            )
+                            attributelist['observable_types'].append(
+                                {type2: (value2, to_ids)}
+                            )
+                        except ValueError:
+                            value1 = value.replace('|','')
+                            attributelist['observable_types'].append(
+                                {type1: (value1, to_ids)}
+                            )
+                            print(value1)
                     else:
                         typeslist.append(type)
                         attributelist['observable_types'].append(
