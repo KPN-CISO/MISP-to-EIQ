@@ -265,8 +265,6 @@ def transform(eventDict, eventID, options):
                         type1, type2 = type.split('|')
                         typeslist.append(type1)
                         typeslist.append(type2)
-                        print(typeslist)
-                        print(value)
                         try:
                             value1, value2 = value.split('|')
                             attributelist['observable_types'].append(
@@ -280,7 +278,6 @@ def transform(eventDict, eventID, options):
                             attributelist['observable_types'].append(
                                 {type1: (value1, to_ids)}
                             )
-                            print(value1)
                     else:
                         typeslist.append(type)
                         attributelist['observable_types'].append(
